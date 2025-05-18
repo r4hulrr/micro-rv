@@ -22,13 +22,17 @@ architecture alu_arch of alu is
 	constant ALU_AND	: 	std_logic_vector(3 downto 0) := "1001"; -- and
 begin
 	with alu_op select
-		d <= a + b						when "0000",	-- add
-			a - b 						when "0001",	-- subtract
-			shift_left(unsigned(a),b) 	when "0010",	-- shift left
-			a xor b 					when "0101",	-- xor
-			shift_right(unsigned(a),b)	when "0110",	-- shift-right (logical)
-			shift_right(signed(a),b)	when "0111",	-- shift-right (arithmetic)
-			a or b						when "1000",	-- or
-			a and b						when "1001",	-- and
-			"0"							when others;
+		d <= a + b							when ALU_ADD,	-- add
+			a - b 							when ALU_SUB,	-- subtract
+			shift_left(unsigned(a),b) 		when ALU_SHL,	-- shift left
+			(31 downto 1 => '0') & 	
+			(signed(a) < signed(b))			when ALU_SLT,	-- set less than
+			(31 downto 1 => '0') &
+			(unsigned(a) < unsigned(b))		when ALU_SLTU,	-- set less than unsigned
+			a xor b 						when ALU_XOR,	-- xor
+			shift_right(unsigned(a),b)		when ALU_SRL,	-- shift-right (logical)
+			shift_right(signed(a),b)		when ALU_SRA,	-- shift-right (arithmetic)
+			a or b							when ALU_OR,	-- or
+			a and b							when ALU_AND,	-- and
+			"0"								when others;
 end alu_arch;

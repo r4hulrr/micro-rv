@@ -21,21 +21,39 @@ architecture alu_arch of alu is
 	constant ALU_OR		: 	std_logic_vector(3 downto 0) := "1000"; -- or
 	constant ALU_AND	: 	std_logic_vector(3 downto 0) := "1001"; -- and
 begin
-	with alu_op select
-		d <= a + b							when ALU_ADD,	-- add
-			a - b 							when ALU_SUB,	-- subtract
-			shift_left(unsigned(a),b) 		when ALU_SHL,	-- shift left
-			if(signed(a) < signed(b)) then
-				d <= (31 downto 1 => '0') & '1'
-			else
-				d<= (31 downto 0 => '0')
-			endif							when ALU_SLT,	-- set less than
-			(31 downto 1 => '0') &
-			(unsigned(a) < unsigned(b))		when ALU_SLTU,	-- set less than unsigned
-			a xor b 						when ALU_XOR,	-- xor
-			shift_right(unsigned(a),b)		when ALU_SRL,	-- shift-right (logical)
-			shift_right(signed(a),b)		when ALU_SRA,	-- shift-right (arithmetic)
-			a or b							when ALU_OR,	-- or
-			a and b							when ALU_AND,	-- and
-			"0"								when others;
+	process(a,b,alu_op)
+	begin
+		case alu_op is
+			when ALU_ADD =>
+				d <= std_logic_vector(signed(a) + signed(b));
+			when ALU_SUB =>
+				d <= std_logic_vector(signed(a) - signed(b));
+			when ALU_SHL =>
+				d <= std_logic_vector(shift_left(unsigned(a),to_integer(unsigned(b))));
+			when ALU_SLT =>
+				if (signed(a)<signed(b)) then
+					d <= (31 downto 1 => '0') & '1';
+				else
+					d <= (31 downto 0 => '0');
+				end if;
+			when ALU_SLTU =>
+				if (unsigned(a)<unsigned(b)) then
+					d <= (31 downto 1 => '0') & '1';
+				else
+					d <= (31 downto 0 => '0');
+				end if;
+			when ALU_XOR =>
+				d <= a xor b;
+			when ALU_SRL =>
+				d <= std_logic_vector(shift_right(unsigned(a),to_integer(unsigned(b))));
+			when ALU_SRA =>
+				d <= std_logic_vector(shift_right(signed(a),to_integer(unsigned(b))));
+			when ALU_OR =>
+				d <= a or b;
+			when ALU_AND =>
+				d <= a and b; 
+			when others =>
+				d <= (31 downto 0 => '0'); 
+		end case;
+	end process;
 end alu_arch;

@@ -25,8 +25,11 @@ begin
 		d <= a + b							when ALU_ADD,	-- add
 			a - b 							when ALU_SUB,	-- subtract
 			shift_left(unsigned(a),b) 		when ALU_SHL,	-- shift left
-			(31 downto 1 => '0') & 	
-			(signed(a) < signed(b))			when ALU_SLT,	-- set less than
+			if(signed(a) < signed(b)) then
+				d <= (31 downto 1 => '0') & '1'
+			else
+				d<= (31 downto 0 => '0')
+			endif							when ALU_SLT,	-- set less than
 			(31 downto 1 => '0') &
 			(unsigned(a) < unsigned(b))		when ALU_SLTU,	-- set less than unsigned
 			a xor b 						when ALU_XOR,	-- xor

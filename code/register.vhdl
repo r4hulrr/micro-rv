@@ -15,10 +15,12 @@ architecture reg_arch of reg is
 begin
 	process(clk)
 	begin
-		if wr_en then
-			reg_data <= data_in;
-		elsif rd_en then
-			data_out <= reg_data;
+		if rising_edge(clk) then
+			if wr_en = '1' then
+				reg_data <= data_in;
+			elsif rd_en = '1' then
+				data_out <= reg_data;
+			end if;
 		end if;
 	end process;
 end reg_arch;

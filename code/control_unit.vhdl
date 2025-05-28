@@ -17,10 +17,15 @@ end ctrl_unit;
 
 architecture ctrl_unit_arch of ctrl_unit is
     -- signals for the register file
-    signal rf_wr_en: std_logic;										-- clk, write enable signals
-    signal rf_rd_sel1, rf_rd_sel2, rf_rw_sel: std_logic_vector (4 downto 0);		-- to choose which of the 32 registers to read/write to 
-    signal rf_data_in: std_logic_vector (31 downto 0);						-- data in from memory if writing to register
-    signal rf_rd1, rf_rd2: std_logic_vector (31 downto 0);					-- data out from selected registers
+    signal rf_wr_en: std_logic;										            -- clk, write enable signals
+    signal rf_rd_sel1, rf_rd_sel2, rf_rw_sel: std_logic_vector (4 downto 0);	-- to choose which of the 32 registers to read/write to 
+    signal rf_data_in: std_logic_vector (31 downto 0);						    -- data in from memory if writing to register
+    signal rf_rd1, rf_rd2: std_logic_vector (31 downto 0);					    -- data out from selected registers
+
+    -- signals for the program counter
+    signal pc_op: std_logic;
+    signal pc_addr_in: std_logic_vector(7 downto 0); 
+    signal pc_addr: std_logic_vector(7 downto 0);
 begin
     -- instantiate the register file
     register_file: entity work.reg_file(reg_file_arch)
@@ -34,6 +39,40 @@ begin
             rd1=>rf_rd1,
             rd2=>rf_rd2
             );
+    
+    -- instantiate the program counter
+    program_counter: entity work.pc(pc_arch)
+        port map(
+            clk=>clk,
+            pc_op=>pc_op,
+            addr_in=>pc_addr_in,
+            addr=>pc_addr
+        );
+    
+    -- process for jump instructions
+    jump_decode: process (opcode,rs1,rs2,rd,f3,f7,imm)
+    begin 
+        if opcode = "1101111" then      -- jal
+            alu_a <= pc_addr;           -- passes pc address and the value of 4 to
+            alu_b <= "0x0004";          -- alu to increment the program counter by a word
+            alu_op <= "0000";
+        elsif opcode = "1100111" then   -- jalr
+            alu_a <= pc_addr;           -- passes pc address and the value of 4 to
+            alu_b <= "0x0004";          -- alu to increment the program counter by a word
+            alu_op <= "0000";
+            rf_rd_sel1 <= rs1;          -- gets the value in rs1 as this needs to be added to immediate later 
+        end if;
+    end process jump_decode;
+
+    -- process for branch instructions
+    branch_decode: process (opcode,rs1,rs2,rd,f3,f7,imm)
+    begin   
+        if opcode = "1100011" then      
+            rf_rd_sel1 <= rs1;          -- gets the value of the two registers to compare
+            rf_rd_sel2 <= rs2;
+        end if;
+    end process branch_decode;
+
     -- process for memory store and load instructions
     mem_decode: process (opcode,rs1,rs2,rd,f3,f7,imm)
     begin
@@ -42,6 +81,7 @@ begin
             rf_rd_sel1 <= rs1;          -- to get the value of rs1 register from register file
         end if;
     end process mem_decode;
+
     -- process for register-register instructions and register-immediate instructions 
     alu_decode: process(opcode,rs1,rs2,rd,f3,f7,imm)
     begin

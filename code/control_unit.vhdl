@@ -48,6 +48,25 @@ begin
             addr_in=>pc_addr_in,
             addr=>pc_addr
         );
+
+    -- process for loading immediates into registers
+    imm_reg_decode: process (opcode,rs1,rs2,rd,f3,f7,imm)
+    begin
+        if opcode = "0110111" or opcode = "0010111" then    -- lui or auipc
+            alu_a <= imm;                                   -- passes immediate and 12 into the alu
+            alu_b <= x"0C";                                 -- to get imm << 12
+            alu_op <= "0010";
+        end if;
+    end process imm_reg_decode;
+
+    -- process for branch instructions
+    branch_decode: process (opcode,rs1,rs2,rd,f3,f7,imm)
+    begin   
+        if opcode = "1100011" then      
+            rf_rd_sel1 <= rs1;          -- gets the value of the two registers to compare
+            rf_rd_sel2 <= rs2;
+        end if;
+    end process branch_decode;
     
     -- process for jump instructions
     jump_decode: process (opcode,rs1,rs2,rd,f3,f7,imm)
@@ -63,15 +82,6 @@ begin
             rf_rd_sel1 <= rs1;          -- gets the value in rs1 as this needs to be added to immediate later 
         end if;
     end process jump_decode;
-
-    -- process for branch instructions
-    branch_decode: process (opcode,rs1,rs2,rd,f3,f7,imm)
-    begin   
-        if opcode = "1100011" then      
-            rf_rd_sel1 <= rs1;          -- gets the value of the two registers to compare
-            rf_rd_sel2 <= rs2;
-        end if;
-    end process branch_decode;
 
     -- process for memory store and load instructions
     mem_decode: process (opcode,rs1,rs2,rd,f3,f7,imm)

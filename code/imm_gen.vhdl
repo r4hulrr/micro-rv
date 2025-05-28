@@ -5,7 +5,7 @@ use ieee.numeric_std.all;
 entity imm_gen is
     port(
         data: in std_logic_vector(31 downto 0);
-        opcode: in std_logic_vector(7 downto 0);
+        opcode: in std_logic_vector(6 downto 0);
         f3: in std_logic_vector(2 downto 0);
         imm: out std_logic_vector(31 downto 0)
     );
@@ -55,7 +55,7 @@ begin
                     & data(11 downto 7)         -- imm[4:0] 
                     )),32));    
             when others =>
-                imm <= (31 downto 0 => 0);
+                imm <= (31 downto 0 => '0');
         end case;
     end process;
 end imm_gen_arch;

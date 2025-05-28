@@ -4,7 +4,7 @@ use ieee.numeric_std.all;
 
 entity ctrl_unit is 
     port(
-        clk: in std_logic;
+        clk,reset: in std_logic;
         opcode: in std_logic_vector(6 downto 0);
         rs1,rs2,rd: in std_logic_vector(4 downto 0);
         f3: in std_logic_vector(2 downto 0);
@@ -23,7 +23,7 @@ architecture ctrl_unit_arch of ctrl_unit is
     signal rf_rd1, rf_rd2: std_logic_vector (31 downto 0);					    -- data out from selected registers
 
     -- signals for the program counter
-    signal pc_op: std_logic;
+    signal pc_op: std_logic_vector(1 downto 0);
     signal pc_addr_in: std_logic_vector(7 downto 0); 
     signal pc_addr: std_logic_vector(7 downto 0);
 begin
@@ -44,6 +44,7 @@ begin
     program_counter: entity work.pc(pc_arch)
         port map(
             clk=>clk,
+            reset=>reset,
             pc_op=>pc_op,
             addr_in=>pc_addr_in,
             addr=>pc_addr
@@ -54,7 +55,7 @@ begin
     begin
         if opcode = "0110111" or opcode = "0010111" then    -- lui or auipc
             alu_a <= imm;                                   -- passes immediate and 12 into the alu
-            alu_b <= x"0C";                                 -- to get imm << 12
+            alu_b <= x"0000000C";                           -- to get imm << 12
             alu_op <= "0010";
         end if;
     end process imm_reg_decode;
@@ -71,13 +72,13 @@ begin
     -- process for jump instructions
     jump_decode: process (opcode,rs1,rs2,rd,f3,f7,imm)
     begin 
-        if opcode = "1101111" then      -- jal
-            alu_a <= pc_addr;           -- passes pc address and the value of 4 to
-            alu_b <= "0x0004";          -- alu to increment the program counter by a word
+        if opcode = "1101111" then                          -- jal
+            alu_a <= std_logic_vector(resize(unsigned(pc_addr),32));  -- passes pc address and the value of 4 to
+            alu_b <= x"00000004";          -- alu to increment the program counter by a word
             alu_op <= "0000";
         elsif opcode = "1100111" then   -- jalr
-            alu_a <= pc_addr;           -- passes pc address and the value of 4 to
-            alu_b <= "0x0004";          -- alu to increment the program counter by a word
+            alu_a <= std_logic_vector(resize(unsigned(pc_addr),32));        -- passes pc address and the value of 4 to
+            alu_b <= x"00000004";          -- alu to increment the program counter by a word
             alu_op <= "0000";
             rf_rd_sel1 <= rs1;          -- gets the value in rs1 as this needs to be added to immediate later 
         end if;

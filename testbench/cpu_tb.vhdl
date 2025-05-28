@@ -8,12 +8,12 @@ end entity;
 architecture testbench of cpu_tb is
 
     -- Clock signal
-    signal clk : std_logic := '0';
+    signal clk,reset : std_logic := '0';
 
     -- Instantiate the cpu
     component cpu
         port (
-            clk : in std_logic
+            clk,reset : in std_logic
         );
     end component;
 
@@ -22,6 +22,9 @@ begin
     -- Clock generation process: 10ns period = 100 MHz
     clock_process : process
     begin
+        reset <= '1';
+        wait for 5 ns;
+        reset <= '0';
         while true loop
             clk <= '0';
             wait for 5 ns;
@@ -33,7 +36,8 @@ begin
     -- Instantiate CPU
     uut: cpu
         port map (
-            clk => clk
+            clk => clk,
+            reset=>reset
         );
 
 end architecture;

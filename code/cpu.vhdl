@@ -10,7 +10,7 @@ end entity;
 
 architecture cpu_arch of cpu is
     -- program counter signals
-    signal pc_op: std_logic(1 downto 0);                -- opcode for program counter
+    signal pc_op: std_logic_vector(1 downto 0);                -- opcode for program counter
     signal pc_addr_in: std_logic_vector(7 downto 0);    -- increments normally if opcode = 0 
     signal pc_addr: std_logic_vector(7 downto 0);       -- or changes addr to addr_in if opcode = 1
 
@@ -29,6 +29,7 @@ architecture cpu_arch of cpu is
     -- alu signals
     signal alu_op: std_logic_vector(3 downto 0);
     signal alu_a, alu_b: std_logic_vector(31 downto 0);
+    signal alu_output: std_logic_vector(31 downto 0);
 begin
     -- instantiate the program counter
     pc: entity work.pc(pc_arch)
@@ -73,6 +74,7 @@ begin
     ctrl_unit: entity work.ctrl_unit(ctrl_unit_arch)
         port map(
             clk=>clk,
+            reset=>reset,
             opcode=>decoder_opcode,
             rs1=>decoder_rs1,
             rs2=>decoder_rs2,
@@ -84,9 +86,17 @@ begin
             alu_a=>alu_a,
             alu_b=>alu_b
         );
+    -- instantiate the alu
+    alu: entity work.alu(alu_arch)
+        port map(
+            alu_op=>alu_op,
+            a=>alu_a,
+            b=>alu_b,
+            d=>alu_output
+        );
     process(clk)
     begin
-        if reset = "1" then
+        if reset = '1' then
             pc_op <= "00";
         elsif rising_edge(clk) then
 

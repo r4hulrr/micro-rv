@@ -11,7 +11,7 @@ entity rom is
 end rom;
 
 architecture rom_arch of rom is
-	type rom_type is array (10 downto 0) of std_logic_vector(31 downto 0);
+	type rom_type is array (255 downto 0) of std_logic_vector(31 downto 0);
 	signal rom_array: rom_type := (
 		0  => x"00500093",  -- addi x1, x0, 5
 		1  => x"00A00113",  -- addi x2, x0, 10

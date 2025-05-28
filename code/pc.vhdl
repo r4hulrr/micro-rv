@@ -4,7 +4,8 @@ use ieee.numeric_std.all;
 
 entity pc is
     port(
-        clk, pc_op: in std_logic;
+        clk, reset: in std_logic;
+        pc_op: in std_logic(1 downto 0);            
         addr_in: in std_logic_vector(7 downto 0); 
         addr: out std_logic_vector(7 downto 0)
     );
@@ -13,12 +14,14 @@ end pc;
 architecture pc_arch of pc is
     signal pc_addr: std_logic_vector(7 downto 0);
 begin
-    process(clk)
+    process(clk, reset)
     begin
-        if rising_edge(clk) then
-            if pc_op = '0' then
+        if reset = "1" then
+            pc_addr <= x"0";
+        elsif rising_edge(clk) then
+            if pc_op = "01" then
                 pc_addr <= std_logic_vector(unsigned(pc_addr)+1);
-            elsif pc_op = '1' then
+            elsif pc_op = "10" then
                 pc_addr <= addr_in;
             end if;
         end if;

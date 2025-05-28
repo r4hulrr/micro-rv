@@ -10,6 +10,7 @@ entity ctrl_unit is
         f3: in std_logic_vector(2 downto 0);
         f7: in std_logic_vector(6 downto 0);
         imm: in std_logic_vector(31 downto 0);
+        pc_addr: in std_logic_vector(7 downto 0);           -- current pc address
         alu_op: out std_logic_vector (3 downto 0);
         alu_a, alu_b: out std_logic_vector(31 downto 0)		-- alu operands
     );
@@ -22,10 +23,6 @@ architecture ctrl_unit_arch of ctrl_unit is
     signal rf_data_in: std_logic_vector (31 downto 0);						    -- data in from memory if writing to register
     signal rf_rd1, rf_rd2: std_logic_vector (31 downto 0);					    -- data out from selected registers
 
-    -- signals for the program counter
-    signal pc_op: std_logic_vector(1 downto 0);
-    signal pc_addr_in: std_logic_vector(7 downto 0); 
-    signal pc_addr: std_logic_vector(7 downto 0);
 begin
     -- instantiate the register file
     register_file: entity work.reg_file(reg_file_arch)
@@ -39,93 +36,60 @@ begin
             rd1=>rf_rd1,
             rd2=>rf_rd2
             );
-    
-    -- instantiate the program counter
-    program_counter: entity work.pc(pc_arch)
-        port map(
-            clk=>clk,
-            reset=>reset,
-            pc_op=>pc_op,
-            addr_in=>pc_addr_in,
-            addr=>pc_addr
-        );
 
     -- process for loading immediates into registers
-    imm_reg_decode: process (opcode,rs1,rs2,rd,f3,f7,imm)
+    process (opcode,rs1,rs2,rd,f3,f7,imm)
     begin
-        if opcode = "0110111" or opcode = "0010111" then    -- lui or auipc
-            alu_a <= imm;                                   -- passes immediate and 12 into the alu
-            alu_b <= x"0000000C";                           -- to get imm << 12
-            alu_op <= "0010";
-        end if;
-    end process imm_reg_decode;
-
-    -- process for branch instructions
-    branch_decode: process (opcode,rs1,rs2,rd,f3,f7,imm)
-    begin   
-        if opcode = "1100011" then      
-            rf_rd_sel1 <= rs1;          -- gets the value of the two registers to compare
-            rf_rd_sel2 <= rs2;
-        end if;
-    end process branch_decode;
-    
-    -- process for jump instructions
-    jump_decode: process (opcode,rs1,rs2,rd,f3,f7,imm)
-    begin 
-        if opcode = "1101111" then                          -- jal
-            alu_a <= std_logic_vector(resize(unsigned(pc_addr),32));  -- passes pc address and the value of 4 to
-            alu_b <= x"00000004";          -- alu to increment the program counter by a word
-            alu_op <= "0000";
-        elsif opcode = "1100111" then   -- jalr
-            alu_a <= std_logic_vector(resize(unsigned(pc_addr),32));        -- passes pc address and the value of 4 to
-            alu_b <= x"00000004";          -- alu to increment the program counter by a word
-            alu_op <= "0000";
-            rf_rd_sel1 <= rs1;          -- gets the value in rs1 as this needs to be added to immediate later 
-        end if;
-    end process jump_decode;
-
-    -- process for memory store and load instructions
-    mem_decode: process (opcode,rs1,rs2,rd,f3,f7,imm)
-    begin
-        if opcode = "0000011" or opcode = "0100011" then  
-            alu_op <= "0000";           -- add as the value in rs1 should be added to immediate
-            rf_rd_sel1 <= rs1;          -- to get the value of rs1 register from register file
-        end if;
-    end process mem_decode;
-
-    -- process for register-register instructions and register-immediate instructions 
-    alu_decode: process(opcode,rs1,rs2,rd,f3,f7,imm)
-    begin
-        if opcode = "0110011" or opcode = "0010011" then
-            rf_rd_sel1 <= rs1;          -- to get the value of rs1 register from register file
-            case f3 is
-                when "000" =>
-                    if f7 = "0100000" then
-                        alu_op <= "0001";           -- SUB
-                    elsif f7 = "0000000" then
-                        alu_op <= "0000";           -- ADD
-                    end if;
-                when "001" =>
-                    alu_op <= "0010";               -- SLL
-                when "010" =>
-                    alu_op <= "0011";               -- SLT
-                when  "011" =>
-                    alu_op <= "0100";               -- SLTU
-                when "100" =>
-                    alu_op <= "0101";               -- XOR
-                when "101" =>
-                    if f7 = "0100000" then
-                        alu_op <= "0111";           -- SRA
-                    elsif f7 = "0000000" then
-                        alu_op <= "0110";           -- SRL
-                    end if;
-                when "110" =>
-                    alu_op <= "1000";               -- OR
-                when "111" =>
-                    alu_op <= "1001";               -- AND
-                when others =>
-                    alu_op <= (others => '0');
-            end case;
-        end if;
-    end process alu_decode;
+        case opcode is
+            when "0110111" | "0010111" =>                       -- lui or auipc
+                alu_a <= imm;                                   -- passes immediate and 12 into the alu
+                alu_b <= x"0000000C";                           -- to get imm << 12
+                alu_op <= "0010";
+            when "1100011" =>                                   -- branch instructions
+                rf_rd_sel1 <= rs1;                              -- gets the value of the two registers to compare
+                rf_rd_sel2 <= rs2;
+            when "1101111" =>                                               -- jal
+                alu_a <= std_logic_vector(resize(unsigned(pc_addr),32));    -- passes pc address and the value of 4 to
+                alu_b <= x"00000004";                                       -- alu to increment the program counter by a word
+                alu_op <= "0000";
+            when "1100111" =>                                               -- jalr
+                alu_a <= std_logic_vector(resize(unsigned(pc_addr),32));    -- passes pc address and the value of 4 to
+                alu_b <= x"00000004";                                       -- alu to increment the program counter by a word
+                alu_op <= "0000";
+                rf_rd_sel1 <= rs1;                      -- to get the value of rs1 register from register file
+            when "0000011" | "0100011" =>   -- memory store and load instructions
+                alu_op <= "0000";           -- add as the value in rs1 should be added to immediate
+                rf_rd_sel1 <= rs1;          -- to get the value of rs1 register from register file
+            when "0110011" | "0010011" =>           -- register-register instructions and register-immediate instructions
+                rf_rd_sel1 <= rs1;                  -- to get the value of rs1 register from register file
+                case f3 is
+                    when "000" =>
+                        if f7 = "0100000" then
+                            alu_op <= "0001";           -- SUB
+                        elsif f7 = "0000000" then
+                            alu_op <= "0000";           -- ADD
+                        end if;
+                    when "001" =>
+                        alu_op <= "0010";               -- SLL
+                    when "010" =>
+                        alu_op <= "0011";               -- SLT
+                    when  "011" =>
+                        alu_op <= "0100";               -- SLTU
+                    when "100" =>
+                        alu_op <= "0101";               -- XOR
+                    when "101" =>
+                        if f7 = "0100000" then
+                            alu_op <= "0111";           -- SRA
+                        elsif f7 = "0000000" then
+                            alu_op <= "0110";           -- SRL
+                        end if;
+                    when "110" =>
+                        alu_op <= "1000";               -- OR
+                    when "111" =>
+                        alu_op <= "1001";               -- AND
+                    when others =>
+                        alu_op <= (others => '0');
+                end case;
+        end case;
+    end process;
 end ctrl_unit_arch;

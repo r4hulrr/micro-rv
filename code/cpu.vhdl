@@ -40,6 +40,7 @@ architecture cpu_arch of cpu is
     signal cu_f3_in: std_logic_vector(2 downto 0);
     signal cu_f7_in: std_logic_vector(6 downto 0);
     signal cu_imm_in: std_logic_vector(31 downto 0);
+    signal cu_pc_addr_in: std_logic_vector(7 downto 0);
     signal cu_a_out: std_logic_vector(31 downto 0);
     signal cu_b_out: std_logic_vector(31 downto 0);
     signal cu_op_out: std_logic_vector(3 downto 0);
@@ -100,6 +101,7 @@ begin
             f3=>cu_f3_in,
             f7=>cu_f7_in,
             imm=>cu_imm_in,
+            pc_addr=>cu_pc_addr_in,
             alu_op=>cu_op_out,
             alu_a=>cu_a_out,
             alu_b=>cu_b_out
@@ -137,6 +139,7 @@ begin
                     cu_f3_in <= decoder_f3;
                     cu_f7_in <= decoder_f7;
                     cu_imm_in <= imm;                       -- immediate is sent to control unit
+                    cu_pc_addr_in <= pc_addr;               -- current pc address is sent to control unit
                     alu_a <= cu_a_out;                      -- control unit outputs sent to alu
                     alu_b <= cu_b_out;
                     alu_op <= cu_op_out;

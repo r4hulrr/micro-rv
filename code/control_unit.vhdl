@@ -4,7 +4,7 @@ use ieee.numeric_std.all;
 
 entity ctrl_unit is 
     port(
-        clk,reset: in std_logic;
+        clk,reset,state: in std_logic;
         opcode: in std_logic_vector(6 downto 0);
         rs1,rs2,rd: in std_logic_vector(4 downto 0);
         f3: in std_logic_vector(2 downto 0);
@@ -17,8 +17,6 @@ entity ctrl_unit is
 end ctrl_unit;
 
 architecture ctrl_unit_arch of ctrl_unit is
-    -- signal for control unit state
-    signal state: std_logic;                -- control unit has two states
     -- signals for the register file
     signal rf_wr_en: std_logic;										            -- clk, write enable signals
     signal rf_rd_sel1, rf_rd_sel2, rf_rw_sel: std_logic_vector (4 downto 0);	-- to choose which of the 32 registers to read/write to 
@@ -70,9 +68,7 @@ begin
     -- process for loading immediates into registers
     process (reset, opcode,rs1,rs2,rd,f3,f7,imm)
     begin
-        if reset = '1' then
-            state <= '0';           -- set control unit to its first stage
-        elsif state = '0' then
+        if state = '0' then
             case opcode is
                 -- u type instructions
                 when "0110111" =>                                   -- lui 
@@ -199,15 +195,25 @@ begin
                             alu_op <= (others => '0');
                     end case;
             end case;
-            state <= '1';       -- set state to 1 so that the control unit can go to its next stage
         elsif state = '1' then
             case opcode is 
                 -- i type instructions
                 when "0000011" =>               -- memory load instructions
                     rf_rw_sel <= rd;            -- to load the ram address value into rd
                     rf_wr_en <= '1';
-                    rf_data_in <= ram_data_out; 
                     ram_rd_en <= '0';
+                    case f3 is
+                        when "000" =>           -- lb
+                            rf_data_in <= std_logic_vector(resize(signed(ram_data_out(7 downto 0)), 32));
+                        when "001" =>           -- lh
+                            rf_data_in <= std_logic_vector(resize(signed(ram_data_out(15 downto 0)), 32));
+                        when "010" =>           -- lw
+                            rf_data_in <= std_logic_vector(resize(signed(ram_data_out(31 downto 0)), 32));
+                        when "100" =>           -- lbu
+                            rf_data_in <= std_logic_vector(resize(unsigned(ram_data_out(7 downto 0)), 32));
+                        when "101" =>           -- lhu
+                            rf_data_in <= std_logic_vector(resize(unsigned(ram_data_out(15 downto 0)), 32));
+                    end case;
             end case;
         end if;
     end process;

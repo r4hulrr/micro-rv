@@ -35,6 +35,7 @@ architecture cpu_arch of cpu is
     signal imm: std_logic_vector(31 downto 0);
 
     -- control unit signals
+    signal cu_state: std_logic;
     signal cu_opcode_in: std_logic_vector(6 downto 0);        
     signal cu_rs1_in, cu_rs2_in, cu_rd_in: std_logic_vector(4 downto 0);
     signal cu_f3_in: std_logic_vector(2 downto 0);
@@ -92,6 +93,7 @@ begin
         port map(
             clk=>clk,
             reset=>reset,
+            state=>cu_state,
             opcode=>cu_opcode_in,
             rs1=>cu_rs1_in,
             rs2=>cu_rs2_in,
@@ -109,6 +111,7 @@ begin
         if reset = '1' then
             state <= "00";          -- should be in fetch state initially
             pc_op <= "00";          -- pc addr out should remain same for now - no increment
+            cu_state <= '0';        -- control unit should be in its first stage
         elsif rising_edge(clk) then
             case state is
                 when "00" =>                                -- fetch 

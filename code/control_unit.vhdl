@@ -76,6 +76,56 @@ begin
                         else
                             pc_op <= "01";                      -- if not equal PC = PC + 4;
                         end if;
+                    when "001"=>                                -- bne
+                        if signed(rf_rd1) /= signed(rf_rd2) then
+                            alu_a <= pc_addr_in;                -- if not equal PC:= PC + imm;
+                            alu_b <= imm;
+                            alu_op <= "0000";
+                            pc_op <= "10";
+                            pc_addr_out <= alu_output;
+                        else
+                            pc_op <= "01";                      -- if equal PC = PC + 4;
+                        end if;
+                    when "100"=>                                -- blt
+                        if signed(rf_rd1) < signed(rf_rd2) then
+                            alu_a <= pc_addr_in;                -- if less than  PC:= PC + imm;
+                            alu_b <= imm;
+                            alu_op <= "0000";
+                            pc_op <= "10";
+                            pc_addr_out <= alu_output;
+                        else
+                            pc_op <= "01";                      -- if not less than PC = PC + 4;
+                        end if;
+                    when "101"=>                                -- bge
+                        if signed(rf_rd1) > signed(rf_rd2) or signed(rf_rd1) = signed(rf_rd2) then
+                            alu_a <= pc_addr_in;                -- if greater than or equal PC:= PC + imm;
+                            alu_b <= imm;
+                            alu_op <= "0000";
+                            pc_op <= "10";
+                            pc_addr_out <= alu_output;
+                        else
+                            pc_op <= "01";                      -- if less than PC = PC + 4;
+                        end if;
+                    when "110"=>                                -- bltu
+                        if unsigned(rf_rd1) < unsigned(rf_rd2) then
+                            alu_a <= pc_addr_in;                -- if less than  PC:= PC + imm;
+                            alu_b <= imm;
+                            alu_op <= "0000";
+                            pc_op <= "10";
+                            pc_addr_out <= alu_output;
+                        else
+                            pc_op <= "01";                      -- if not less than PC = PC + 4;
+                        end if;
+                    when "111"=>                                -- bgeu
+                        if unsigned(rf_rd1) > unsigned(rf_rd2) or unsigned(rf_rd1) = unsigned(rf_rd2) then
+                            alu_a <= pc_addr_in;                -- if greater than or equal PC:= PC + imm;
+                            alu_b <= imm;
+                            alu_op <= "0000";
+                            pc_op <= "10";
+                            pc_addr_out <= alu_output;
+                        else
+                            pc_op <= "01";                      -- if less than PC = PC + 4;
+                        end if;
                 end case;
             when "1101111" =>                                               -- jal
                 alu_a <= std_logic_vector(resize(unsigned(pc_addr_in),32));    -- passes pc address and the value of 4 to

@@ -44,11 +44,9 @@ architecture cpu_arch of cpu is
     signal cu_a_out: std_logic_vector(31 downto 0);
     signal cu_b_out: std_logic_vector(31 downto 0);
     signal cu_op_out: std_logic_vector(3 downto 0);
+    signal cu_pc_op_out: std_logic_vector(1 downto 0);            
+    signal cu_pc_addr_out: std_logic_vector(7 downto 0);       
 
-    -- alu signals
-    signal alu_op: std_logic_vector(3 downto 0);
-    signal alu_a, alu_b: std_logic_vector(31 downto 0);
-    signal alu_output: std_logic_vector(31 downto 0);
 begin
     -- instantiate the program counter
     pc: entity work.pc(pc_arch)
@@ -101,19 +99,9 @@ begin
             f3=>cu_f3_in,
             f7=>cu_f7_in,
             imm=>cu_imm_in,
-            pc_addr=>cu_pc_addr_in,
-            alu_op=>cu_op_out,
-            alu_a=>cu_a_out,
-            alu_b=>cu_b_out
-        );
-
-    -- instantiate the alu
-    alu: entity work.alu(alu_arch)
-        port map(
-            alu_op=>alu_op,
-            a=>alu_a,
-            b=>alu_b,
-            d=>alu_output
+            pc_addr_in=>cu_pc_addr_in,
+            pc_op=>cu_pc_op_out,
+            pc_addr_out=>cu_pc_addr_out
         );
 
     process(clk)
@@ -140,9 +128,6 @@ begin
                     cu_f7_in <= decoder_f7;
                     cu_imm_in <= imm;                       -- immediate is sent to control unit
                     cu_pc_addr_in <= pc_addr;               -- current pc address is sent to control unit
-                    alu_a <= cu_a_out;                      -- control unit outputs sent to alu
-                    alu_b <= cu_b_out;
-                    alu_op <= cu_op_out;
             end case;
         end if;
     end process;

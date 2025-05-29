@@ -4,7 +4,7 @@ use ieee.numeric_std.all;
 
 entity ctrl_unit is 
     port(
-        clk,reset,state: in std_logic;
+        clk,state: in std_logic;
         opcode: in std_logic_vector(6 downto 0);
         rs1,rs2,rd: in std_logic_vector(4 downto 0);
         f3: in std_logic_vector(2 downto 0);
@@ -66,7 +66,7 @@ begin
         );
 
     -- process for loading immediates into registers
-    process (reset, opcode,rs1,rs2,rd,f3,f7,imm)
+    process (opcode,rs1,rs2,rd,f3,f7,imm)
     begin
         if state = '0' then
             case opcode is
@@ -155,6 +155,7 @@ begin
                     alu_b <= x"00000004";                                       -- alu to increment the program counter by a word
                     alu_op <= "0000";
                     rf_rd_sel1 <= rs1;                      -- to get the value of rs1 register from register file
+
                 -- i type instructions
                 when "0000011" =>               -- memory load instructions
                     rf_rd_sel1 <= rs1;          -- to get the value of rs1 register from register file
@@ -163,7 +164,26 @@ begin
                     alu_op <= "0000";           -- add as the value in rs1 should be added to immediate
                     ram_rd_en <= '1';
                     ram_addr <= alu_output;     -- this value should be passed onto the ram to get data
-
+                
+                -- s type instructions
+                when "0100011" =>               -- memory store instructions
+                    rf_rd_sel1 <= rs1;          -- to get the value of rs1 and rs2 registers from register file
+                    rf_rd_sel2 <= rs2;
+                    alu_a <= rf_rd1;
+                    alu_b <= imm;
+                    alu_op <= "0000";           -- add as the value in rs1 should be added to immediate
+                    ram_wr_en <= '1';           -- the value stored in rs2 should be written to ram address which
+                    ram_addr <= alu_output;     -- is the calculated value
+                    case f3 is 
+                        when "000" =>           -- sb
+                            ram_data_in <= std_logic_vector(resize(signed(rf_rd2(7 downto 0)), 32));
+                        when "001" =>           -- sh
+                            ram_data_in <= std_logic_vector(resize(signed(rf_rd2(15 downto 0)), 32));
+                        when "010" =>           -- sw
+                            ram_data_in <= std_logic_vector(resize(signed(rf_rd2(31 downto 0)), 32));
+                    end case;
+                    
+                
                 when "0110011" | "0010011" =>           -- register-register instructions and register-immediate instructions
                     rf_rd_sel1 <= rs1;                  -- to get the value of rs1 register from register file
                     case f3 is

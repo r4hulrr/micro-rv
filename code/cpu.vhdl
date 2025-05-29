@@ -92,7 +92,6 @@ begin
     ctrl_unit: entity work.ctrl_unit(ctrl_unit_arch)
         port map(
             clk=>clk,
-            reset=>reset,
             state=>cu_state,
             opcode=>cu_opcode_in,
             rs1=>cu_rs1_in,

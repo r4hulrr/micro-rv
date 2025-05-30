@@ -183,9 +183,15 @@ begin
                             ram_data_in <= std_logic_vector(resize(signed(rf_rd2(31 downto 0)), 32));
                     end case;
                     
-                
-                when "0110011" | "0010011" =>           -- register-register instructions and register-immediate instructions
-                    rf_rd_sel1 <= rs1;                  -- to get the value of rs1 register from register file
+                -- r type instructions
+                when "0110011" =>                       
+                    rf_rd_sel1 <= rs1;                  -- to get the value of rs1 and rs2 register from register file
+                    rf_rd_sel2 <= rs2;
+                    alu_a <= rf_rd1;
+                    alu_b <= rf_rd2;
+                    rf_wr_en <= '1';
+                    rf_rw_sel <= rd;
+                    rf_data_in <= alu_output;
                     case f3 is
                         when "000" =>
                             if f7 = "0100000" then

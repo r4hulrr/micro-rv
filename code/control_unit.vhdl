@@ -78,7 +78,16 @@ begin
                     alu_a <= pc_addr_in;                            -- process imm + pc in alu 
                     alu_b <= imm;                                   -- and writes into register rd
                     alu_op <= "0000";
+                    rf_wr_en <= '1';
                     rf_rw_sel <= rd;                                
+                    rf_data_in <= alu_output;
+                -- j type instructions
+                when "1101111" =>                                                   -- jal
+                    alu_a <= std_logic_vector(resize(unsigned(pc_addr_in),32));     -- passes pc address and the value of 4 to
+                    alu_b <= x"00000004";                                           -- alu to increment the program counter by a word
+                    alu_op <= "0000";                                               -- stores PC + 4 into rd
+                    rf_wr_en <= '1';
+                    rf_rw_sel <= rd;
                     rf_data_in <= alu_output;
                 -- b type instructions
                 when "1100011" =>                                   -- branch instructions
@@ -146,10 +155,6 @@ begin
                                 pc_op <= "01";                      -- if less than PC = PC + 4;
                             end if;
                     end case;
-                when "1101111" =>                                                   -- jal
-                    alu_a <= std_logic_vector(resize(unsigned(pc_addr_in),32));     -- passes pc address and the value of 4 to
-                    alu_b <= x"00000004";                                           -- alu to increment the program counter by a word
-                    alu_op <= "0000";
                 when "1100111" =>                                               -- jalr
                     alu_a <= std_logic_vector(resize(unsigned(pc_addr_in),32));    -- passes pc address and the value of 4 to
                     alu_b <= x"00000004";                                       -- alu to increment the program counter by a word
@@ -231,6 +236,14 @@ begin
             end case;
         elsif state = '1' then
             case opcode is 
+                -- j type instruction
+                when "1101111" =>                                                   -- jal
+                    alu_a <= std_logic_vector(resize(unsigned(pc_addr_in),32));     -- passes pc address and the imm to
+                    alu_b <= x"00000004";                                           -- alu to increment the program counter by imm
+                    alu_op <= "0000";                                               -- stores PC + im into PC
+                    pc_op <= "10";
+                    pc_addr_out <= alu_output;
+                    rf_wr_en <= '0';
                 -- i type instructions
                 when "0000011" =>               -- memory load instructions
                     rf_rw_sel <= rd;            -- to load the ram address value into rd

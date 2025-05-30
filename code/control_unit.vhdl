@@ -156,7 +156,7 @@ begin
                     alu_op <= "0000";
                     rf_rd_sel1 <= rs1;                      -- to get the value of rs1 register from register file
 
-                -- i type instructions
+                -- some i type instructions
                 when "0000011" =>               -- memory load instructions
                     rf_rd_sel1 <= rs1;          -- to get the value of rs1 register from register file
                     alu_a <= rf_rd1;
@@ -183,21 +183,29 @@ begin
                             ram_data_in <= std_logic_vector(resize(signed(rf_rd2(31 downto 0)), 32));
                     end case;
                     
-                -- r type instructions
-                when "0110011" =>                       
+                -- r type instructions and some i type instructions
+                when "0110011"|"0010011" =>                       
                     rf_rd_sel1 <= rs1;                  -- to get the value of rs1 and rs2 register from register file
                     rf_rd_sel2 <= rs2;
                     alu_a <= rf_rd1;
-                    alu_b <= rf_rd2;
+                    if opcode = "0010011" then          -- get immediate if i type here
+                        alu_b <= imm;
+                    elsif opcode = "0110011" then       -- else r2 to alu
+                        alu_b <= rf_rd2;
+                    end if;
                     rf_wr_en <= '1';
                     rf_rw_sel <= rd;
                     rf_data_in <= alu_output;
                     case f3 is
                         when "000" =>
-                            if f7 = "0100000" then
-                                alu_op <= "0001";           -- SUB
-                            elsif f7 = "0000000" then
-                                alu_op <= "0000";           -- ADD
+                            if opcode = "0110011" then 
+                                if f7 = "0100000" then
+                                    alu_op <= "0001";           -- SUB
+                                elsif f7 = "0000000" then
+                                    alu_op <= "0000";           -- ADD
+                                end if;
+                            elsif opcode = "0010011" then
+                                alu_op <= "0000";               -- ADD as i type does not have sub
                             end if;
                         when "001" =>
                             alu_op <= "0010";               -- SLL

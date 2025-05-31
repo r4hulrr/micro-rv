@@ -233,6 +233,9 @@ begin
             end case;
         elsif state = '1' then
             case opcode is 
+                -- b type instructions
+                when "1100011" =>                                   -- branch instructions
+                    pc_op <= "00";                                  -- program counter should not change further in this stage
                 -- j type instruction
                 when "1101111" =>                                                   -- jal
                     alu_a <= std_logic_vector(resize(unsigned(pc_addr_in),32));     -- passes pc address and the imm to

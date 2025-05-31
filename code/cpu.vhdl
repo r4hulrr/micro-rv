@@ -42,9 +42,6 @@ architecture cpu_arch of cpu is
     signal cu_f7_in: std_logic_vector(6 downto 0);
     signal cu_imm_in: std_logic_vector(31 downto 0);
     signal cu_pc_addr_in: std_logic_vector(7 downto 0);
-    signal cu_a_out: std_logic_vector(31 downto 0);
-    signal cu_b_out: std_logic_vector(31 downto 0);
-    signal cu_op_out: std_logic_vector(3 downto 0);
     signal cu_pc_op_out: std_logic_vector(1 downto 0);            
     signal cu_pc_addr_out: std_logic_vector(7 downto 0);       
 
@@ -122,6 +119,7 @@ begin
                     state <= "01";                          -- move to decode
 
                 when "01" =>                                -- decode
+                    cu_state <= '0';                        -- control unit should be in its first state
                     cu_opcode_in <= decoder_opcode;         -- decoder outputs are sent to control unit
                     cu_rs1_in <= decoder_rs1;
                     cu_rs2_in <= decoder_rs2;
@@ -130,6 +128,23 @@ begin
                     cu_f7_in <= decoder_f7;
                     cu_imm_in <= imm;                       -- immediate is sent to control unit
                     cu_pc_addr_in <= pc_addr;               -- current pc address is sent to control unit
+                    pc_op <= cu_pc_op_out;                  -- outputs of control unit are sent to pc
+                    pc_addr_in <= cu_pc_addr_out;
+                    state <= "10";
+                
+                when "10" =>                                -- execute
+                    cu_state <= '1';                        -- control unit should be in its second state state
+                    cu_opcode_in <= decoder_opcode;         -- decoder outputs are sent to control unit
+                    cu_rs1_in <= decoder_rs1;
+                    cu_rs2_in <= decoder_rs2;
+                    cu_rd_in <= decoder_rd;
+                    cu_f3_in <= decoder_f3;
+                    cu_f7_in <= decoder_f7;
+                    cu_imm_in <= imm;                       -- immediate is sent to control unit
+                    cu_pc_addr_in <= pc_addr;               -- current pc address is sent to control unit
+                    pc_op <= cu_pc_op_out;                  -- outputs of control unit are sent to pc
+                    pc_addr_in <= cu_pc_addr_out;
+                    state <= "00";
             end case;
         end if;
     end process;

@@ -10,7 +10,7 @@ end entity;
 
 architecture cpu_arch of cpu is
     -- states of cpu
-    signal state: std_logic_vector(1 downto 0);         -- states of the cpu in fsm (fetch, decode, execute)
+    signal state: std_logic_vector(2 downto 0);         -- states of the cpu in fsm (fetch, decode, execute)
 
     -- program counter signals
     signal pc_op: std_logic_vector(1 downto 0);         -- opcode for program counter
@@ -105,22 +105,22 @@ begin
     process(reset, clk)
     begin
         if reset = '1' then
-            state <= "00";          -- should be in fetch state initially
+            state <= "000";          -- should be in fetch state initially
             pc_op <= "00";          -- pc addr out should remain same for now - no increment
             cu_state <= '0';        -- control unit should be in its first stage
         elsif rising_edge(clk) then
             case state is
-                when "00" =>                                -- fetch 
+                when "000" =>                                -- fetch 
                     rom_addr_in <= pc_addr;                 -- pc address should be sent to rom
-                    state <= "01";        
-                when "01" =>
+                    state <= "001";        
+                when "001" =>
                     decoder_instruct_in <= rom_instruct;    -- instruction received from rom sent to decoder
                     imm_instruct_in <= rom_instruct;        -- instruction from rom also sent to imm gen
                     imm_opcode_in <= decoder_opcode;        -- opcode from decoder sent to imm gen
                     imm_f3_in <= decoder_f3;                -- f3 from decoder sent to imm gen
-                    state <= "01";                          -- move to decode
-                    
-                when "10" =>                                -- decode
+                    state <= "011";                          -- move to decode
+                
+                when "011" =>
                     cu_state <= '0';                        -- control unit should be in its first state
                     cu_opcode_in <= decoder_opcode;         -- decoder outputs are sent to control unit
                     cu_rs1_in <= decoder_rs1;
@@ -132,9 +132,9 @@ begin
                     cu_pc_addr_in <= pc_addr;               -- current pc address is sent to control unit
                     pc_op <= cu_pc_op_out;                  -- outputs of control unit are sent to pc
                     pc_addr_in <= cu_pc_addr_out;
-                    state <= "11";
+                    state <= "100";
                 
-                when "11" =>                                -- execute
+                when "100" =>                               -- execute
                     cu_state <= '1';                        -- control unit should be in its second state state
                     cu_opcode_in <= decoder_opcode;         -- decoder outputs are sent to control unit
                     cu_rs1_in <= decoder_rs1;
@@ -146,7 +146,7 @@ begin
                     cu_pc_addr_in <= pc_addr;               -- current pc address is sent to control unit
                     pc_op <= cu_pc_op_out;                  -- outputs of control unit are sent to pc
                     pc_addr_in <= cu_pc_addr_out;
-                    state <= "00";
+                    state <= "000";
                 when others =>
                     pc_op <= "00";
             end case;

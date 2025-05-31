@@ -102,7 +102,7 @@ begin
             pc_addr_out=>cu_pc_addr_out
         );
 
-    process(clk)
+    process(reset, clk)
     begin
         if reset = '1' then
             state <= "00";          -- should be in fetch state initially
@@ -112,13 +112,15 @@ begin
             case state is
                 when "00" =>                                -- fetch 
                     rom_addr_in <= pc_addr;                 -- pc address should be sent to rom
+                    state <= "01";        
+                when "01" =>
                     decoder_instruct_in <= rom_instruct;    -- instruction received from rom sent to decoder
                     imm_instruct_in <= rom_instruct;        -- instruction from rom also sent to imm gen
                     imm_opcode_in <= decoder_opcode;        -- opcode from decoder sent to imm gen
                     imm_f3_in <= decoder_f3;                -- f3 from decoder sent to imm gen
                     state <= "01";                          -- move to decode
-
-                when "01" =>                                -- decode
+                    
+                when "10" =>                                -- decode
                     cu_state <= '0';                        -- control unit should be in its first state
                     cu_opcode_in <= decoder_opcode;         -- decoder outputs are sent to control unit
                     cu_rs1_in <= decoder_rs1;
@@ -130,9 +132,9 @@ begin
                     cu_pc_addr_in <= pc_addr;               -- current pc address is sent to control unit
                     pc_op <= cu_pc_op_out;                  -- outputs of control unit are sent to pc
                     pc_addr_in <= cu_pc_addr_out;
-                    state <= "10";
+                    state <= "11";
                 
-                when "10" =>                                -- execute
+                when "11" =>                                -- execute
                     cu_state <= '1';                        -- control unit should be in its second state state
                     cu_opcode_in <= decoder_opcode;         -- decoder outputs are sent to control unit
                     cu_rs1_in <= decoder_rs1;
@@ -145,6 +147,8 @@ begin
                     pc_op <= cu_pc_op_out;                  -- outputs of control unit are sent to pc
                     pc_addr_in <= cu_pc_addr_out;
                     state <= "00";
+                when others =>
+                    pc_op <= "00";
             end case;
         end if;
     end process;

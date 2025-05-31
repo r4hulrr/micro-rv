@@ -74,9 +74,9 @@ begin
                 when "0110111" =>                                   -- lui 
                     rf_rw_sel <= rd;                                -- writes the immediate into register rd
                     rf_data_in <= imm;
-                when "0010111" =>                                   -- auipc
-                    alu_a <= pc_addr_in;                            -- process imm + pc in alu 
-                    alu_b <= imm;                                   -- and writes into register rd
+                when "0010111" =>                                               -- auipc
+                    alu_a <= std_logic_vector(resize(unsigned(pc_addr_in),32)); -- process imm + pc in alu 
+                    alu_b <= imm;                                               -- and writes into register rd
                     alu_op <= "0000";
                     rf_wr_en <= '1';
                     rf_rw_sel <= rd;                                
@@ -98,64 +98,66 @@ begin
                     case f3 is
                         when "000"=>                                -- beq
                             if signed(rf_rd1) = signed(rf_rd2) then -- compares values stored in rs1 and rs2     
-                                alu_a <= pc_addr_in;                -- if equal PC:= PC + imm;
+                                alu_a <= std_logic_vector(resize(unsigned(pc_addr_in),32));                -- if equal PC:= PC + imm;
                                 alu_b <= imm;
                                 alu_op <= "0000";
                                 pc_op <= "10";
-                                pc_addr_out <= alu_output;
+                                pc_addr_out <= alu_output(7 downto 0);
                             else
                                 pc_op <= "01";                      -- if not equal PC = PC + 4;
                             end if;
                         when "001"=>                                -- bne
                             if signed(rf_rd1) /= signed(rf_rd2) then
-                                alu_a <= pc_addr_in;                -- if not equal PC:= PC + imm;
+                                alu_a <= std_logic_vector(resize(unsigned(pc_addr_in),32));                -- if not equal PC:= PC + imm;
                                 alu_b <= imm;
                                 alu_op <= "0000";
                                 pc_op <= "10";
-                                pc_addr_out <= alu_output;
+                                pc_addr_out <= alu_output(7 downto 0);
                             else
                                 pc_op <= "01";                      -- if equal PC = PC + 4;
                             end if;
                         when "100"=>                                -- blt
                             if signed(rf_rd1) < signed(rf_rd2) then
-                                alu_a <= pc_addr_in;                -- if less than  PC:= PC + imm;
+                                alu_a <= std_logic_vector(resize(unsigned(pc_addr_in),32));                -- if less than  PC:= PC + imm;
                                 alu_b <= imm;
                                 alu_op <= "0000";
                                 pc_op <= "10";
-                                pc_addr_out <= alu_output;
+                                pc_addr_out <= alu_output(7 downto 0);
                             else
                                 pc_op <= "01";                      -- if not less than PC = PC + 4;
                             end if;
                         when "101"=>                                -- bge
                             if signed(rf_rd1) > signed(rf_rd2) or signed(rf_rd1) = signed(rf_rd2) then
-                                alu_a <= pc_addr_in;                -- if greater than or equal PC:= PC + imm;
+                                alu_a <= std_logic_vector(resize(unsigned(pc_addr_in),32));                -- if greater than or equal PC:= PC + imm;
                                 alu_b <= imm;
                                 alu_op <= "0000";
                                 pc_op <= "10";
-                                pc_addr_out <= alu_output;
+                                pc_addr_out <= alu_output(7 downto 0);
                             else
                                 pc_op <= "01";                      -- if less than PC = PC + 4;
                             end if;
                         when "110"=>                                -- bltu
                             if unsigned(rf_rd1) < unsigned(rf_rd2) then
-                                alu_a <= pc_addr_in;                -- if less than  PC:= PC + imm;
+                                alu_a <= std_logic_vector(resize(unsigned(pc_addr_in),32));                -- if less than  PC:= PC + imm;
                                 alu_b <= imm;
                                 alu_op <= "0000";
                                 pc_op <= "10";
-                                pc_addr_out <= alu_output;
+                                pc_addr_out <= alu_output(7 downto 0);
                             else
                                 pc_op <= "01";                      -- if not less than PC = PC + 4;
                             end if;
                         when "111"=>                                -- bgeu
                             if unsigned(rf_rd1) > unsigned(rf_rd2) or unsigned(rf_rd1) = unsigned(rf_rd2) then
-                                alu_a <= pc_addr_in;                -- if greater than or equal PC:= PC + imm;
+                                alu_a <= std_logic_vector(resize(unsigned(pc_addr_in),32));                -- if greater than or equal PC:= PC + imm;
                                 alu_b <= imm;
                                 alu_op <= "0000";
                                 pc_op <= "10";
-                                pc_addr_out <= alu_output;
+                                pc_addr_out <= alu_output(7 downto 0);
                             else
                                 pc_op <= "01";                      -- if less than PC = PC + 4;
                             end if;
+                        when others =>
+                            pc_op <= "00";
                     end case;
 
                 -- some i type instructions
@@ -165,7 +167,7 @@ begin
                     alu_b <= imm;
                     alu_op <= "0000";           -- add as the value in rs1 should be added to immediate
                     ram_rd_en <= '1';
-                    ram_addr <= alu_output;     -- this value should be passed onto the ram to get data
+                    ram_addr <= alu_output(9 downto 0);     -- this value should be passed onto the ram to get data
                 
                 -- s type instructions
                 when "0100011" =>               -- memory store instructions
@@ -175,7 +177,7 @@ begin
                     alu_b <= imm;
                     alu_op <= "0000";           -- add as the value in rs1 should be added to immediate
                     ram_wr_en <= '1';           -- the value stored in rs2 should be written to ram address which
-                    ram_addr <= alu_output;     -- is the calculated value
+                    ram_addr <= alu_output(9 downto 0);     -- is the calculated value
                     case f3 is 
                         when "000" =>           -- sb
                             ram_data_in <= std_logic_vector(resize(signed(rf_rd2(7 downto 0)), 32));
@@ -183,6 +185,8 @@ begin
                             ram_data_in <= std_logic_vector(resize(signed(rf_rd2(15 downto 0)), 32));
                         when "010" =>           -- sw
                             ram_data_in <= std_logic_vector(resize(signed(rf_rd2(31 downto 0)), 32));
+                        when others =>
+                            pc_op <= "00";
                     end case;
                     
                 -- r type instructions and some i type instructions
@@ -230,6 +234,8 @@ begin
                         when others =>
                             alu_op <= (others => '0');
                     end case;
+                when others => 
+                    pc_op <= "00";
             end case;
         elsif state = '1' then
             case opcode is 
@@ -242,16 +248,16 @@ begin
                     alu_b <= x"00000004";                                           -- alu to increment the program counter by imm
                     alu_op <= "0000";                                               -- stores PC + im into PC
                     pc_op <= "10";
-                    pc_addr_out <= alu_output;
+                    pc_addr_out <= alu_output(7 downto 0);
                     rf_wr_en <= '0';
                 -- i type instructions
                 when "1100111" =>                                                   -- jalr
                     rf_rd_sel1 <= rs1;
-                    alu_a <= rf_rd_sel1;                                            -- passes rs1 and the imm to
+                    alu_a <= rf_rd1;                                            -- passes rs1 and the imm to
                     alu_b <= x"00000004";                                           -- alu for addition and the result is 
                     alu_op <= "0000";                                               -- stored into PC
                     pc_op <= "10";
-                    pc_addr_out <= alu_output;
+                    pc_addr_out <= alu_output(7 downto 0);
                     rf_wr_en <= '0';
                 when "0000011" =>               -- memory load instructions
                     rf_rw_sel <= rd;            -- to load the ram address value into rd
@@ -268,7 +274,11 @@ begin
                             rf_data_in <= std_logic_vector(resize(unsigned(ram_data_out(7 downto 0)), 32));
                         when "101" =>           -- lhu
                             rf_data_in <= std_logic_vector(resize(unsigned(ram_data_out(15 downto 0)), 32));
+                        when others =>
+                            pc_op <= "00";
                     end case;
+                when others => 
+                    pc_op <= "00";
             end case;
         end if;
     end process;

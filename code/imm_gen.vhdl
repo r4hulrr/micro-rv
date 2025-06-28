@@ -4,20 +4,22 @@ use ieee.numeric_std.all;
 
 entity imm_gen is
     port(
-        data: in std_logic_vector(31 downto 0);
-        opcode: in std_logic_vector(6 downto 0);
-        f3: in std_logic_vector(2 downto 0);
-        imm: out std_logic_vector(31 downto 0)
+        i_ins: in std_logic_vector(31 downto 0);
+        o_imm: out std_logic_vector(31 downto 0)
     );
 end entity;
 
 architecture imm_gen_arch of imm_gen is
 begin
-    process(opcode,data,f3)
+    process(i_ins)
+        variable opcode : std_logic_vector(6 downto 0);
+        variable f3     : std_logic_vector(2 downto 0);
     begin
+        opcode  := i_ins(6 downto 0);
+        f3      := i_ins(14 downto 12);
         case opcode is
             when "0110111"|"0010111" =>
-                imm <= data(31 downto 12) & (11 downto 0 => '0');
+                o_imm <= i_ins(31 downto 12) & (11 downto 0 => '0');
             when "1101111" =>
                 imm <= std_logic_vector(resize(signed((
                     data(31)                    -- imm[20]

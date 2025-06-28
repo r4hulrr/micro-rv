@@ -21,43 +21,43 @@ begin
             when "0110111"|"0010111" =>
                 o_imm <= i_ins(31 downto 12) & (11 downto 0 => '0');
             when "1101111" =>
-                imm <= std_logic_vector(resize(signed((
-                    data(31)                    -- imm[20]
-                    & data(19 downto 12)        -- imm[19:12] 
-                    & data(20)                  -- imm[11]
-                    & data(30 downto 21)        -- imm[10:1]
+                o_imm <= std_logic_vector(resize(signed((
+                    i_ins(31)                    -- imm[20]
+                    & i_ins(19 downto 12)        -- imm[19:12] 
+                    & i_ins(20)                  -- imm[11]
+                    & i_ins(30 downto 21)        -- imm[10:1]
                     & '0'                       -- imm[0]
                     )),32));
             when "1100011" =>
-                imm <= std_logic_vector(resize(signed((
-                    data(31)                    -- imm[12]
-                    & data(7)                   -- imm[11] 
-                    & data(30 downto 25)        -- imm[10:5]
-                    & data(11 downto 8)         -- imm[4:1]
+                o_imm <= std_logic_vector(resize(signed((
+                    i_ins(31)                    -- imm[12]
+                    & i_ins(7)                   -- imm[11] 
+                    & i_ins(30 downto 25)        -- imm[10:5]
+                    & i_ins(11 downto 8)         -- imm[4:1]
                     & '0'                       -- imm[0]
                     )),32));
             when "1100111"|"0000011" =>
-                imm <= std_logic_vector(resize(signed((
-                    data(31 downto 20)          -- imm[11:0]
+                o_imm <= std_logic_vector(resize(signed((
+                    i_ins(31 downto 20)          -- imm[11:0]
                     )),32));
             when "0010011" =>
                 case f3 is
                     when "001" | "101" =>
-                        imm <= std_logic_vector(resize(unsigned((
-                            data(24 downto 20)          -- shamt
+                        o_imm <= std_logic_vector(resize(unsigned((
+                            i_ins(24 downto 20)          -- shamt
                             )),32));
                     when others =>
-                        imm <= std_logic_vector(resize(signed((
-                            data(31 downto 20)          -- imm[11:0]
+                        o_imm <= std_logic_vector(resize(signed((
+                            i_ins(31 downto 20)          -- imm[11:0]
                             )),32));
                 end case;
             when "0100011" =>
-                imm <= std_logic_vector(resize(signed((
-                    data(31 downto 25)          -- imm[11:5]
-                    & data(11 downto 7)         -- imm[4:0] 
+                o_imm <= std_logic_vector(resize(signed((
+                    i_ins(31 downto 25)          -- imm[11:5]
+                    & i_ins(11 downto 7)         -- imm[4:0] 
                     )),32));    
             when others =>
-                imm <= (31 downto 0 => '0');
+                o_imm <= (31 downto 0 => '0');
         end case;
     end process;
 end imm_gen_arch;

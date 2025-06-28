@@ -34,13 +34,15 @@ begin
         variable opcode: std_logic_vector(6 downto 0);
     begin
         opcode := i_ins(6 downto 0);
-        o_mux_alu_a <= '1' when opcode = OP_LOAD else
-            '0';
-        o_mux_alu_b <= "10" when opcode = OP_LOAD else
-            "00";
-        o_alu_op <= "0000" when opcode = OP_LOAD else
-            "0000";
-        o_rf_wr_en <= '1' when opcode = OP_LOAD else
-            '0';
+        o_mux_alu_a <= '1' when (opcode = OP_LUI
+                                or opcode = OP_AUIPC) else
+                        '0';
+        o_mux_alu_b <= "10" when opcode = OP_LUI else
+                        "01" when opcode = OP_AUIPC else
+                        "00";
+        o_alu_op    <= "0000" when opcode = OP_LUI else
+                        "0000";
+        o_rf_wr_en  <= '1' when opcode = OP_LUI else
+                        '0';
     end process;
 end ctrl_unit_arch;

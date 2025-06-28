@@ -4,19 +4,19 @@ use ieee.numeric_std.all;
 
 entity pc is
     port(
-        i_clk, i_reset: in std_logic;        
-        i_addr: in std_logic_vector(7 downto 0); 
-        o_addr: out std_logic_vector(7 downto 0)
+        i_clk, i_reset  : in std_logic;        
+        i_addr          : in std_logic_vector(7 downto 0); 
+        o_addr          : out std_logic_vector(7 downto 0)
     );
 end pc;
 
 architecture pc_arch of pc is
 begin
-    process(clk, reset)
+    process(i_clk, i_reset)
     begin
-        if reset = '1' then
+        if i_reset = '1' then
             o_addr <= (others => '0');
-        elsif rising_edge(clk) then
+        elsif rising_edge(i_clk) then
             o_addr <= i_addr;
         end if;
     end process;

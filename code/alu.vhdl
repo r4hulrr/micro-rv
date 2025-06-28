@@ -3,9 +3,10 @@ use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 entity alu is
 	port(
-		alu_op	: in std_logic_vector(3 downto 0);		-- ALU op code from control logic
-		a,b		: in std_logic_vector(31 downto 0);		-- Operands
-		d 		: out std_logic_vector(31 downto 0)		-- Output 32 bit value from ALU
+		i_alu_op	: in std_logic_vector(3 downto 0);		-- ALU op code from control logic
+		i_a			: in std_logic_vector(31 downto 0);		-- Operands
+		i_b			: in std_logic_vector(31 downto 0);
+		o_d 		: out std_logic_vector(31 downto 0)		-- Output 32 bit value from ALU
 	);
 end alu;
 
@@ -21,39 +22,39 @@ architecture alu_arch of alu is
 	constant ALU_OR		: 	std_logic_vector(3 downto 0) := "1000"; -- or
 	constant ALU_AND	: 	std_logic_vector(3 downto 0) := "1001"; -- and
 begin
-	process(a,b,alu_op)
+	process(i_a,i_b,i_alu_op)
 	begin
-		case alu_op is
+		case i_alu_op is
 			when ALU_ADD =>
-				d <= std_logic_vector(signed(a) + signed(b));
+				o_d <= std_logic_vector(signed(i_a) + signed(i_b));
 			when ALU_SUB =>
-				d <= std_logic_vector(signed(a) - signed(b));
+				o_d <= std_logic_vector(signed(i_a) - signed(i_b));
 			when ALU_SHL =>
-				d <= std_logic_vector(shift_left(unsigned(a),to_integer(unsigned(b))));
+				o_d <= std_logic_vector(shift_left(unsigned(i_a),to_integer(unsigned(i_b))));
 			when ALU_SLT =>
-				if (signed(a)<signed(b)) then
-					d <= (31 downto 1 => '0') & '1';
+				if (signed(i_a)<signed(i_b)) then
+					o_d <= (31 downto 1 => '0') & '1';
 				else
-					d <= (31 downto 0 => '0');
+					o_d <= (31 downto 0 => '0');
 				end if;
 			when ALU_SLTU =>
-				if (unsigned(a)<unsigned(b)) then
-					d <= (31 downto 1 => '0') & '1';
+				if (unsigned(i_a)<unsigned(i_b)) then
+					o_d <= (31 downto 1 => '0') & '1';
 				else
-					d <= (31 downto 0 => '0');
+					o_d <= (31 downto 0 => '0');
 				end if;
 			when ALU_XOR =>
-				d <= a xor b;
+				o_d <= i_a xor i_b;
 			when ALU_SRL =>
-				d <= std_logic_vector(shift_right(unsigned(a),to_integer(unsigned(b))));
+				o_d <= std_logic_vector(shift_right(unsigned(i_a),to_integer(unsigned(i_b))));
 			when ALU_SRA =>
-				d <= std_logic_vector(shift_right(signed(a),to_integer(unsigned(b))));
+				o_d <= std_logic_vector(shift_right(signed(i_a),to_integer(unsigned(i_b))));
 			when ALU_OR =>
-				d <= a or b;
+				o_d <= i_a or i_b;
 			when ALU_AND =>
-				d <= a and b; 
+				o_d <= i_a and i_b; 
 			when others =>
-				d <= (31 downto 0 => '0'); 
+				o_d <= (31 downto 0 => '0'); 
 		end case;
 	end process;
 end alu_arch;

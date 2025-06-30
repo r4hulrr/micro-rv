@@ -14,6 +14,7 @@ entity ctrl_unit is
         o_mux_alu_b : out std_logic(1 downto 0);    -- mux that controls input into alu b
         o_bs_en     : out std_logic;
         o_bl_en     : out std_logic;
+        o_br_en     : out std_logic;
         o_mux_wb    : out std_logic_vector(1 downto 0)  -- mux that controls writeback
     )
 end ctrl_unit;
@@ -44,10 +45,15 @@ begin
                                     or opcode = OP_AUIPC) else
                         "0000";
         o_rf_wr_en  <= '1' when (opcode = OP_LUI
-                                or opcode = OP_AUIPC) else
+                                or opcode = OP_AUIPC
+                                or opcode = OP_JAL) else
                         '0';
         o_mux_wb    <= "01" when (opcode = OP_LUI
                                 or opcode = OP_AUIPC) else
+                        "10" when opcode = OP_JAL else
+                        "0";
+        o_br_en     <= "1" when (opcode = OP_JAL
+                                or opcode = OP_BR) else
                         "0";
     end process;
 end ctrl_unit_arch;

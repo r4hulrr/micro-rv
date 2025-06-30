@@ -40,9 +40,14 @@ begin
         o_mux_alu_b <= "10" when opcode = OP_LUI else
                         "01" when opcode = OP_AUIPC else
                         "00";
-        o_alu_op    <= "0000" when opcode = OP_LUI else
+        o_alu_op    <= "0000" when (opcode = OP_LUI
+                                    or opcode = OP_AUIPC) else
                         "0000";
-        o_rf_wr_en  <= '1' when opcode = OP_LUI else
+        o_rf_wr_en  <= '1' when (opcode = OP_LUI
+                                or opcode = OP_AUIPC) else
                         '0';
+        o_mux_wb    <= "01" when (opcode = OP_LUI
+                                or opcode = OP_AUIPC) else
+                        "0";
     end process;
 end ctrl_unit_arch;

@@ -36,7 +36,8 @@ begin
     begin
         opcode := i_ins(6 downto 0);
         o_mux_alu_a <= '1' when (opcode = OP_LUI
-                                or opcode = OP_AUIPC) else
+                                or opcode = OP_AUIPC
+                                or opcode = OP_LOAD) else
                         '0';
         o_mux_alu_b <= "10" when opcode = OP_LUI else
                         "01" when opcode = OP_AUIPC else
@@ -46,14 +47,20 @@ begin
                         "0000";
         o_rf_wr_en  <= '1' when (opcode = OP_LUI
                                 or opcode = OP_AUIPC
-                                or opcode = OP_JAL) else
+                                or opcode = OP_JAL
+                                or opcode = OP_JALR
+                                or opcode = OP_LOAD) else
                         '0';
         o_mux_wb    <= "01" when (opcode = OP_LUI
                                 or opcode = OP_AUIPC) else
-                        "10" when opcode = OP_JAL else
-                        "0";
-        o_br_en     <= "1" when (opcode = OP_JAL
-                                or opcode = OP_BR) else
-                        "0";
+                        "10" when (opcode = OP_JAL
+                                or opcode = OP_JALR) else
+                        "00";
+        o_br_en     <= '1' when (opcode = OP_JAL
+                                or opcode = OP_BR
+                                or opcode = OP_JALR) else
+                        '0';
+        o_op_bl     <= '1' when (opcode = OP_LOAD) else
+                        '0';
     end process;
 end ctrl_unit_arch;

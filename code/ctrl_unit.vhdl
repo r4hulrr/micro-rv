@@ -39,14 +39,18 @@ begin
         f3      := i_ins(14 downto 12);
         f7      := i_ins(31 downto 25);
 
-        if (opcode = OP_ALUI) then
+        if (opcode = OP_ALUI) or (opcode = OP_ALU) then
             case(f3) is
                 when "000" =>
-                    o_alu_op <= "0000"; -- add
+                    if (opcode = OP_ALU) and (f7 = "0100000") then
+                        o_alu_op <= "0001"; -- sub
+                    else
+                        o_alu_op <= "0000"; -- add
+                    end if;
                 when "001" =>
                     o_alu_op <= "0010"; -- shift left
                 when "101" =>
-                    if (f7 = "0000000 ") then
+                    if (f7 = "0000000") then
                         o_alu_op <= "0110"; -- shift right logical
                     else
                         o_alu_op <= "0111"; -- shift right arithmetic
@@ -79,11 +83,13 @@ begin
                                 or opcode = OP_JAL
                                 or opcode = OP_JALR
                                 or opcode = OP_LOAD
-                                or opcode = OP_ALUI) else
+                                or opcode = OP_ALUI
+                                or opcode = OP_ALU) else
                         '0';
         o_mux_wb    <= "01" when (opcode = OP_LUI
                                 or opcode = OP_AUIPC
-                                or opcode = OP_ALUI) else
+                                or opcode = OP_ALUI
+                                or opcode = OP_ALU) else
                         "10" when (opcode = OP_JAL
                                 or opcode = OP_JALR) else
                         "00";

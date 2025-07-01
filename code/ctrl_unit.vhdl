@@ -28,7 +28,6 @@ architecture ctrl_unit_arch is
     constant OP_LOAD    : std_logic_vector(6 downto 0) := "0000011";
     constant OP_ALUI    : std_logic_vector(6 downto 0) := "0010011";
     constant OP_STORE    : std_logic_vector(6 downto 0) := "0100011";
-    constant OP_SHIFT    : std_logic_vector(6 downto 0) := "0010011";
     constant OP_ALU    : std_logic_vector(6 downto 0) := "0110011";
 begin
     process(i_ins)
@@ -44,6 +43,14 @@ begin
             case(f3) is
                 when "000" =>
                     o_alu_op <= "0000"; -- add
+                when "001" =>
+                    o_alu_op <= "0010"; -- shift left
+                when "101" =>
+                    if (f7 = "0000000 ") then
+                        o_alu_op <= "0110"; -- shift right logical
+                    else
+                        o_alu_op <= "0111"; -- shift right arithmetic
+                    end if;
                 when "010" =>
                     o_alu_op <= "0011"; -- slt
                 when "011" =>
@@ -61,7 +68,8 @@ begin
         o_mux_alu_a <= '1' when (opcode = OP_LUI
                                 or opcode = OP_AUIPC
                                 or opcode = OP_LOAD
-                                or opcode = OP_ALUI) else
+                                or opcode = OP_ALUI
+                                or opcode = OP_STORE) else
                         '0';
         o_mux_alu_b <= "10" when opcode = OP_LUI else
                         "01" when opcode = OP_AUIPC else
@@ -84,6 +92,10 @@ begin
                                 or opcode = OP_JALR) else
                         '0';
         o_op_bl     <= '1' when (opcode = OP_LOAD) else
+                        '0';
+        o_op_bs     <= '1' when (opcode = OP_STORE) else
+                        '0';
+        o_ram_wr_en <= '1' when opcode = OP_STORE else
                         '0';
     end process;
 end ctrl_unit_arch;

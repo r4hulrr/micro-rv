@@ -12,7 +12,7 @@ entity reg_file is
 		i_wr_sel	: in std_logic_vector (4 downto 0);
 		i_wr_data	: in std_logic_vector (31 downto 0);	-- data in from memory if writing to register
 		o_rd1		: out std_logic_vector (31 downto 0);	-- data out from selected registers
-		o_rd2		: out std_logic_vector (31 downto 0);	
+		o_rd2		: out std_logic_vector (31 downto 0)
 	);
 end reg_file;
 

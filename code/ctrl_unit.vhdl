@@ -32,27 +32,50 @@ architecture ctrl_unit_arch is
     constant OP_ALU    : std_logic_vector(6 downto 0) := "0110011";
 begin
     process(i_ins)
-        variable opcode: std_logic_vector(6 downto 0);
+        variable opcode : std_logic_vector(6 downto 0);
+        variable f3     : std_logic_vector(2 downto 0);
+        variable f7     : std_logic_vector(6 downto 0);
     begin
-        opcode := i_ins(6 downto 0);
+        opcode  := i_ins(6 downto 0);
+        f3      := i_ins(14 downto 12);
+        f7      := i_ins(31 downto 25);
+
+        if (opcode = OP_ALUI) then
+            case(f3) is
+                when "000" =>
+                    o_alu_op <= "0000"; -- add
+                when "010" =>
+                    o_alu_op <= "0011"; -- slt
+                when "011" =>
+                    o_alu_op <= "0100"; --sltu
+                when "100" =>
+                    o_alu_op <= "0101"; --xor
+                when "110" =>
+                    o_alu_op <= "1000"; --or
+                when "111" =>
+                    o_alu_op <= "1001"; --and
+        else
+            o_alu_op <= "0000"; -- add
+        end if;
+
         o_mux_alu_a <= '1' when (opcode = OP_LUI
                                 or opcode = OP_AUIPC
-                                or opcode = OP_LOAD) else
+                                or opcode = OP_LOAD
+                                or opcode = OP_ALUI) else
                         '0';
         o_mux_alu_b <= "10" when opcode = OP_LUI else
                         "01" when opcode = OP_AUIPC else
                         "00";
-        o_alu_op    <= "0000" when (opcode = OP_LUI
-                                    or opcode = OP_AUIPC) else
-                        "0000";
         o_rf_wr_en  <= '1' when (opcode = OP_LUI
                                 or opcode = OP_AUIPC
                                 or opcode = OP_JAL
                                 or opcode = OP_JALR
-                                or opcode = OP_LOAD) else
+                                or opcode = OP_LOAD
+                                or opcode = OP_ALUI) else
                         '0';
         o_mux_wb    <= "01" when (opcode = OP_LUI
-                                or opcode = OP_AUIPC) else
+                                or opcode = OP_AUIPC
+                                or opcode = OP_ALUI) else
                         "10" when (opcode = OP_JAL
                                 or opcode = OP_JALR) else
                         "00";

@@ -150,8 +150,11 @@ architecture cpu_arch of cpu is
     -- ALU
     signal sig_alu_a        : std_logic_vector(31 downto 0);
     signal sig_alu_b        : std_logic_vector(31 downto 0);
+    signal sig_alu_output   : std_logic_vector(31 downto 0);
     -- RAM
-    signal sig_wr_data      : std_logic_vector(31 downto 0);
+    signal sig_ram_wr_data  : std_logic_vector(31 downto 0);
+    signal sig_ram_rd_data  : std_logic_vector(31 downto 0);
+    signal sig_ram_addr     : std_logic_vector(31 downto 0);
 begin
     -- program counter
     pc: pc 
@@ -220,5 +223,43 @@ begin
         data_a     => sig_rs2;
         data_b     => sig_imm;
         data_y     => sig_alu_b
+    );
+    -- alu
+    alu: alu
+    port map(
+        i_alu_op   => sig_alu_op;
+		i_a		   => sig_alu_a;
+		i_b		   => sig_alu_b;
+		o_d 	   => sig_alu_output	
+    );
+    -- branch logic
+    branch_logic: branch_logic
+    port map(
+        i_branch_en     => sig_br_en;
+        i_rs1           => sig_rs1;
+        i_rs2           => sig_rs2;
+        i_op            => sig_ins(6 downto 0);
+        i_f3            => sig_ins(14 downto 12);
+        i_imm           => sig_imm;
+        i_pc            => sig_cur_pc;
+        o_pc            => sig_next_pc
+    );
+    -- byte extractor (store)
+    byte_extract_store: byte_extract
+    port map(
+        i_be_en     => sig_bs_en;
+        i_data      => sig_rs2;  
+        i_f3        => sig_ins(14 downto 12);
+        o_data      => sig_ram_wr_data
+    );
+    -- ram
+    ram: ram
+    port map(
+        i_clk	    => i_clk;
+		i_reset	    => i_reset;
+		i_wr_en	    => sig_ram_wr_en;
+		i_addr	    => std_logic_vector(resize(unsigned(sig_alu_output, 10))
+		i_data	    => sig_ram_wr_data;
+		o_data	    => sig_ram_rd_data
     );
 end cpu_arch;

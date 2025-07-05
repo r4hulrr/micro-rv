@@ -4,7 +4,7 @@ use ieee.numeric_std.all;
 
 entity cpu is
     port(
-        clk, reset: in std_logic          -- clock and reset input
+        i_clk, i_reset: in std_logic          -- clock and reset input
     );
 end entity;
 
@@ -30,6 +30,16 @@ architecture cpu_arch of cpu is
         port(
             i_ins: in std_logic_vector(31 downto 0);
             o_imm: out std_logic_vector(31 downto 0)
+        );
+    end component;
+    -- 32 bit 3 to 1 mux
+    component mux_3to1_32b is
+        port(
+            mux_select : in std_logic_vector(1 downto 0);
+            data_a     : in std_logic_vector(31 downto 0);
+            data_b     : in std_logic_vector(31 downto 0);
+            data_c     : in std_logic_vector(31 downto 0);
+            data_y     : out std_logic_vector(31 downto 0)
         );
     end component;
     -- Control Unit
@@ -161,55 +171,20 @@ begin
             pc_op=>cu_pc_op_out,
             pc_addr_out=>cu_pc_addr_out
         );
-
-    process(reset, clk)
+    -- signals
+    -- PC
+    signal sig_cur_pc   : std_logic_vector(7 downto 0);
+    signal sig_next_pc  : std_logic_vector(7 downto 0);
+    process(clk)
     begin
-        if reset = '1' then
-            state <= "000";          -- should be in fetch state initially
-            pc_op <= "00";          -- pc addr out should remain same for now - no increment
-            cu_state <= '0';        -- control unit should be in its first stage
-        elsif rising_edge(clk) then
-            case state is
-                when "000" =>                                -- fetch 
-                    rom_addr_in <= pc_addr;                 -- pc address should be sent to rom
-                    state <= "001";        
-                when "001" =>
-                    decoder_instruct_in <= rom_instruct;    -- instruction received from rom sent to decoder
-                    imm_instruct_in <= rom_instruct;        -- instruction from rom also sent to imm gen
-                    imm_opcode_in <= decoder_opcode;        -- opcode from decoder sent to imm gen
-                    imm_f3_in <= decoder_f3;                -- f3 from decoder sent to imm gen
-                    state <= "011";                          -- move to decode
-                
-                when "011" =>
-                    cu_state <= '0';                        -- control unit should be in its first state
-                    cu_opcode_in <= decoder_opcode;         -- decoder outputs are sent to control unit
-                    cu_rs1_in <= decoder_rs1;
-                    cu_rs2_in <= decoder_rs2;
-                    cu_rd_in <= decoder_rd;
-                    cu_f3_in <= decoder_f3;
-                    cu_f7_in <= decoder_f7;
-                    cu_imm_in <= imm;                       -- immediate is sent to control unit
-                    cu_pc_addr_in <= pc_addr;               -- current pc address is sent to control unit
-                    pc_op <= cu_pc_op_out;                  -- outputs of control unit are sent to pc
-                    pc_addr_in <= cu_pc_addr_out;
-                    state <= "100";
-                
-                when "100" =>                               -- execute
-                    cu_state <= '1';                        -- control unit should be in its second state state
-                    cu_opcode_in <= decoder_opcode;         -- decoder outputs are sent to control unit
-                    cu_rs1_in <= decoder_rs1;
-                    cu_rs2_in <= decoder_rs2;
-                    cu_rd_in <= decoder_rd;
-                    cu_f3_in <= decoder_f3;
-                    cu_f7_in <= decoder_f7;
-                    cu_imm_in <= imm;                       -- immediate is sent to control unit
-                    cu_pc_addr_in <= pc_addr;               -- current pc address is sent to control unit
-                    pc_op <= cu_pc_op_out;                  -- outputs of control unit are sent to pc
-                    pc_addr_in <= cu_pc_addr_out;
-                    state <= "000";
-                when others =>
-                    pc_op <= "00";
-            end case;
-        end if;
+        -- program counter
+        pc: pc 
+        port map(
+            i_clk   => i_clk;
+            i_reset => i_reset;
+            i_addr  => sig_next_pc;
+            o_addr  => sig_cur_pc
+        );
+
     end process;
 end cpu_arch;

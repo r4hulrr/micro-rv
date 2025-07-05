@@ -42,6 +42,15 @@ architecture cpu_arch of cpu is
             data_y     : out std_logic_vector(31 downto 0)
         );
     end component;
+    -- 32 bit 2 to 1 mux
+    component mux_2to1_32b is
+        port(
+            mux_select : in std_logic_vector(1 downto 0);
+            data_a     : in std_logic_vector(31 downto 0);
+            data_b     : in std_logic_vector(31 downto 0);
+            data_y     : out std_logic_vector(31 downto 0)
+        );
+    end component;
     -- Control Unit
     component ctrl_unit is
         port(
@@ -51,8 +60,8 @@ architecture cpu_arch of cpu is
             o_ram_wr_en : out std_logic;
             o_op_bs     : out std_logic;
             o_op_bl     : out std_logic;
-            o_mux_alu_a : out std_logic;                -- mux that controls input into alu a 
-            o_mux_alu_b : out std_logic(1 downto 0);    -- mux that controls input into alu b
+            o_mux_alu_b : out std_logic;                -- mux that controls input into alu a 
+            o_mux_alu_a : out std_logic(1 downto 0);    -- mux that controls input into alu b
             o_bs_en     : out std_logic;
             o_bl_en     : out std_logic;
             o_br_en     : out std_logic;
@@ -115,31 +124,34 @@ architecture cpu_arch of cpu is
             o_data      : out std_logic_vector(31 downto 0)
         );
     end component;
-        -- signals
-        -- PC
-        signal sig_cur_pc   : std_logic_vector(7 downto 0);
-        signal sig_next_pc  : std_logic_vector(7 downto 0);
-        -- ROM
-        signal sig_ins      : std_logic_vector(31 downto 0);
-        -- Imm gen
-        signal sig_imm      : std_logic_vector(31 downto 0);
-        -- Control Unit
-        signal sig_alu_op       : std_logic_vector(3 downto 0);
-        signal sig_rf_wr_en     : std_logic;
-        signal sig_ram_wr_en    : std_logic;
-        signal sig_op_bs        : std_logic;
-        signal sig_op_bl        : std_logic;
-        signal sig_mux_alu_a    : std_logic;                -- mux that controls input into alu a 
-        signal sig_mux_alu_b    : std_logic(1 downto 0);    -- mux that controls input into alu b
-        signal sig_bs_en        : std_logic;
-        signal sig_bl_en        : std_logic;
-        signal sig_br_en        : std_logic;
-        signal sig_mux_wb       : std_logic_vector(1 downto 0);
-        -- Reg File
-        signal sig_rs1          : std_logic_vector(31 downto 0);
-        signal sig_rs2          : std_logic_vector(31 downto 0);
-        -- RAM
-        signal sig_wr_data      : std_logic_vector(31 downto 0);
+    -- signals
+    -- PC
+    signal sig_cur_pc   : std_logic_vector(7 downto 0);
+    signal sig_next_pc  : std_logic_vector(7 downto 0);
+    -- ROM
+    signal sig_ins      : std_logic_vector(31 downto 0);
+    -- Imm gen
+    signal sig_imm      : std_logic_vector(31 downto 0);
+    -- Control Unit
+    signal sig_alu_op       : std_logic_vector(3 downto 0);
+    signal sig_rf_wr_en     : std_logic;
+    signal sig_ram_wr_en    : std_logic;
+    signal sig_op_bs        : std_logic;
+    signal sig_op_bl        : std_logic;
+    signal sig_mux_alu_b    : std_logic;                -- mux that controls input into alu a 
+    signal sig_mux_alu_a    : std_logic(1 downto 0);    -- mux that controls input into alu b
+    signal sig_bs_en        : std_logic;
+    signal sig_bl_en        : std_logic;
+    signal sig_br_en        : std_logic;
+    signal sig_mux_wb       : std_logic_vector(1 downto 0);
+    -- Reg File
+    signal sig_rs1          : std_logic_vector(31 downto 0);
+    signal sig_rs2          : std_logic_vector(31 downto 0);
+    -- ALU
+    signal sig_alu_a        : std_logic_vector(31 downto 0);
+    signal sig_alu_b        : std_logic_vector(31 downto 0);
+    -- RAM
+    signal sig_wr_data      : std_logic_vector(31 downto 0);
 begin
     -- program counter
     pc: pc 
@@ -190,6 +202,23 @@ begin
 		i_wr_sel	=> sig_ins(11 downto 8);
 		i_wr_data	=> sig_wr_data;
 		o_rd1		=> sig_rs1;
-		o_rd2		=> sig_rs2;
+		o_rd2		=> sig_rs2
+    );
+    -- mux for alu a
+    mux_alu_a: mux_3to1_32b
+    port map(
+        mux_select => sig_mux_alu_a;
+        data_a     => sig_rs1;
+        data_b     => std_logic_vector(resize(unsigned(sig_cur_pc), 32));
+        data_c     => x"00000000";
+        data_y     => sig_alu_a
+    );
+    -- mux for alu b
+    mux_alu_b: mux_2to1_32b
+    port map(
+        mux_select => sig_mux_alu_b;
+        data_a     => sig_rs2;
+        data_b     => sig_imm;
+        data_y     => sig_alu_b
     );
 end cpu_arch;

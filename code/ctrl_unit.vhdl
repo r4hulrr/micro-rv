@@ -10,8 +10,8 @@ entity ctrl_unit is
         o_ram_wr_en : out std_logic;
         o_op_bs     : out std_logic;
         o_op_bl     : out std_logic;
-        o_mux_alu_a : out std_logic;                -- mux that controls input into alu a 
-        o_mux_alu_b : out std_logic(1 downto 0);    -- mux that controls input into alu b
+        o_mux_alu_b : out std_logic;                -- mux that controls input into alu a 
+        o_mux_alu_a : out std_logic(1 downto 0);    -- mux that controls input into alu b
         o_bs_en     : out std_logic;
         o_bl_en     : out std_logic;
         o_br_en     : out std_logic;
@@ -69,13 +69,13 @@ begin
             o_alu_op <= "0000"; -- add
         end if;
 
-        o_mux_alu_a <= '1' when (opcode = OP_LUI
+        o_mux_alu_b <= '1' when (opcode = OP_LUI
                                 or opcode = OP_AUIPC
                                 or opcode = OP_LOAD
                                 or opcode = OP_ALUI
                                 or opcode = OP_STORE) else
                         '0';
-        o_mux_alu_b <= "10" when opcode = OP_LUI else
+        o_mux_alu_a <= "10" when opcode = OP_LUI else
                         "01" when opcode = OP_AUIPC else
                         "00";
         o_rf_wr_en  <= '1' when (opcode = OP_LUI

@@ -60,7 +60,7 @@ architecture cpu_arch of cpu is
         );
     end component;
     -- Register File
-    component register_file is
+    component reg_file is
         port(
             i_clk		: in std_logic;							-- clk
             i_reset		: in std_logic;							-- reset
@@ -115,76 +115,81 @@ architecture cpu_arch of cpu is
             o_data      : out std_logic_vector(31 downto 0)
         );
     end component;
+        -- signals
+        -- PC
+        signal sig_cur_pc   : std_logic_vector(7 downto 0);
+        signal sig_next_pc  : std_logic_vector(7 downto 0);
+        -- ROM
+        signal sig_ins      : std_logic_vector(31 downto 0);
+        -- Imm gen
+        signal sig_imm      : std_logic_vector(31 downto 0);
+        -- Control Unit
+        signal sig_alu_op       : std_logic_vector(3 downto 0);
+        signal sig_rf_wr_en     : std_logic;
+        signal sig_ram_wr_en    : std_logic;
+        signal sig_op_bs        : std_logic;
+        signal sig_op_bl        : std_logic;
+        signal sig_mux_alu_a    : std_logic;                -- mux that controls input into alu a 
+        signal sig_mux_alu_b    : std_logic(1 downto 0);    -- mux that controls input into alu b
+        signal sig_bs_en        : std_logic;
+        signal sig_bl_en        : std_logic;
+        signal sig_br_en        : std_logic;
+        signal sig_mux_wb       : std_logic_vector(1 downto 0);
+        -- Reg File
+        signal sig_rs1          : std_logic_vector(31 downto 0);
+        signal sig_rs2          : std_logic_vector(31 downto 0);
+        -- RAM
+        signal sig_wr_data      : std_logic_vector(31 downto 0);
 begin
-    -- instantiate the program counter
-    pc: entity work.pc(pc_arch)
-        port map(
-            clk=>clk,
-            reset=>reset,
-            pc_op=>pc_op,
-            addr_in=>pc_addr_in,
-            addr=>pc_addr
-        );
-
-    -- instantiate the rom
-    rom: entity work.rom(rom_arch)
-        port map(
-            clk=>clk,
-            addr=>rom_addr_in,
-            data=>rom_instruct
-        );
-
-    -- instantiate the decoder
-    decoder: entity work.decoder(decoder_arch)
-        port map(
-            data=>decoder_instruct_in,
-            opcode=>decoder_opcode,
-            rs1=>decoder_rs1,
-            rs2=>decoder_rs2,
-            rd=>decoder_rd,
-            f3=>decoder_f3,
-            f7=>decoder_f7
-        );
-
-    -- instantiate the immediate generator
-    imm_gen: entity work.imm_gen(imm_gen_arch)
-        port map(
-            data=>imm_instruct_in,
-            opcode=>imm_opcode_in,
-            f3=>imm_f3_in,
-            imm=>imm
-        );
-    
-    -- instantiate the control unit
-    ctrl_unit: entity work.ctrl_unit(ctrl_unit_arch)
-        port map(
-            clk=>clk,
-            state=>cu_state,
-            opcode=>cu_opcode_in,
-            rs1=>cu_rs1_in,
-            rs2=>cu_rs2_in,
-            rd=>cu_rd_in,
-            f3=>cu_f3_in,
-            f7=>cu_f7_in,
-            imm=>cu_imm_in,
-            pc_addr_in=>cu_pc_addr_in,
-            pc_op=>cu_pc_op_out,
-            pc_addr_out=>cu_pc_addr_out
-        );
-    -- signals
-    -- PC
-    signal sig_cur_pc   : std_logic_vector(7 downto 0);
-    signal sig_next_pc  : std_logic_vector(7 downto 0);
-    process(clk)
-    begin
-        -- program counter
-        pc: pc 
-        port map(
-            i_clk   => i_clk;
-            i_reset => i_reset;
-            i_addr  => sig_next_pc;
-            o_addr  => sig_cur_pc
-        );
-
-    end process;
+    -- program counter
+    pc: pc 
+    port map(
+        i_clk   => i_clk;
+        i_reset => i_reset;
+        i_addr  => sig_next_pc;
+        o_addr  => sig_cur_pc
+    );
+    -- rom
+    rom: rom
+    port map(
+        i_clk   => i_clk;
+        i_reset => i_reset;
+        i_addr  => sig_cur_pc;
+        o_ins   => sig_ins
+    );
+    -- imm gen
+    imm_gen: imm_gen
+    port map(
+        i_ins   => sig_ins;
+        o_imm   => sig_imm
+    );
+    -- ctrl unit
+    ctrl_unit: ctrl_unit
+    port map(
+        i_ins       => sig_ins;
+        o_alu_op    => sig_alu_op;
+        o_rf_wr_en  => sig_rf_wr_en;
+        o_ram_wr_en => sig_ram_wr_en;
+        o_op_bs     => sig_op_bs;
+        o_op_bl     => sig_op_bl;
+        o_mux_alu_a => sig_mux_alu_a;       -- mux that controls input into alu a 
+        o_mux_alu_b => sig_mux_alu_b;       -- mux that controls input into alu b
+        o_bs_en     => sig_bs_en;
+        o_bl_en     => sig_bl_en;
+        o_br_en     => sig_br_en;
+        o_mux_wb    => sig_mux_wb
+    );
+    -- reg file
+    reg_file: reg_file
+    port map(
+        i_clk		=> i_clk;
+		i_reset		=> i_reset;
+		i_wr_en		=> sig_rf_wr_en;
+		i_rd_sel1	=> sig_ins(19 downto 15);
+		i_rd_sel2	=> sig_ins(24 downto 20);
+		i_wr_sel	=> sig_ins(11 downto 8);
+		i_wr_data	=> sig_wr_data;
+		o_rd1		=> sig_rs1;
+		o_rd2		=> sig_rs2;
+    );
 end cpu_arch;

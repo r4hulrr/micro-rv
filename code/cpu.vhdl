@@ -8,7 +8,7 @@ entity cpu is
     );
 end entity;
 
-architecture cpu_arch of cpu is\
+architecture cpu_arch of cpu is
     -- program counter
    component pc is
         port(

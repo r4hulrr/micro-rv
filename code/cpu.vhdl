@@ -155,6 +155,10 @@ architecture cpu_arch of cpu is
     signal sig_ram_wr_data  : std_logic_vector(31 downto 0);
     signal sig_ram_rd_data  : std_logic_vector(31 downto 0);
     signal sig_ram_addr     : std_logic_vector(31 downto 0);
+    -- Byte extract Load 
+    signal sig_bl_data      : std_logic_vector(31 downto 0);
+    -- WB mux
+    signal sig_wb_data      : std_logic_vector(31 downto 0);
 begin
     -- program counter
     pc: pc 
@@ -261,5 +265,22 @@ begin
 		i_addr	    => std_logic_vector(resize(unsigned(sig_alu_output, 10))
 		i_data	    => sig_ram_wr_data;
 		o_data	    => sig_ram_rd_data
+    );
+    -- byte extractor (load)
+    byte_extract_load: byte_extract
+    port map(
+        i_be_en     => sig_bl_en;
+        i_data      => sig_ram_rd_data;  
+        i_f3        => sig_ins(14 downto 12);
+        o_data      => sig_bl_data
+    );
+    -- mux for wb
+    mux_wb: mux_3to1_32b
+    port map(
+        mux_select => sig_mux_wb;
+        data_a     => sig_bl_data;
+        data_b     => sig_alu_output;
+        data_c     => std_logic_vector(resize(unsigned(sig_cur_pc) + unsigned(4),32));
+        data_y     => sig_wb_data
     );
 end cpu_arch;

@@ -85,7 +85,8 @@ begin
                 end case;
             end if;
         else
-            o_pc <= i_pc;
+            var_incr    := X"00000004";                       -- if less than PC = PC + 4;
+            o_pc        <= i_pc + var_incr;
         end if;
     end process;
 end branch_logic_arch;

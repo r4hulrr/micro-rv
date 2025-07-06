@@ -6,13 +6,13 @@ entity rom is
     port(
         i_clk   : in std_logic;
         i_reset : in std_logic;
-        i_addr  : in std_logic_vector(7 downto 0); -- 8-bit address
+        i_addr  : in std_logic_vector(7 downto 0); -- 8-bit byte address
         o_ins   : out std_logic_vector(31 downto 0)
     );
 end entity;
 
 architecture rom_arch of rom is
-    type rom_type is array(0 to 255) of std_logic_vector(31 downto 0); -- 256 x 32-bit = 1 KB ROM
+    type rom_type is array(0 to 255) of std_logic_vector(31 downto 0); -- 256 words (1 KB)
     signal sig_insn_mem : rom_type := (
         0 => x"00A00113", -- addi x2, x0, 10
         1 => x"002081B3", -- add x3, x1, x2
@@ -21,14 +21,14 @@ architecture rom_arch of rom is
         4 => x"00010293", -- addi x5, x2, 0
         5 => x"0041A463", -- beq x3, x4, 8
         6 => x"00000293", -- addi x5, x0, 0
-        7 => x"FF5FF06F", -- jal x0, -8 (infinite loop)
+        7 => x"FF5FF06F", -- jal x0, -8
         others => x"00000013" -- default: NOP
     );
 begin
     process(i_clk)
     begin
         if rising_edge(i_clk) then
-            o_ins <= sig_insn_mem(to_integer(unsigned(i_addr)));
+            o_ins <= sig_insn_mem(to_integer(unsigned(i_addr(7 downto 2)))); -- divide by 4
         end if;
     end process;
 end architecture;

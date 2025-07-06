@@ -28,10 +28,10 @@ begin
                     o_data <= i_data;  -- full word
                 -- LOAD BYTE UNSIGNED (lbu)
                 when "100" =>
-                    o_data <= (24 => '0') & i_data(7 downto 0);  -- zero-extend byte
+                    o_data <= std_logic_vector(resize(unsigned(i_data(7 downto 0)), 32));
                 -- LOAD HALFWORD UNSIGNED (lhu)
                 when "101" =>
-                    o_data <= (16 => '0') & i_data(15 downto 0); -- zero-extend halfword
+                    o_data <= std_logic_vector(resize(unsigned(i_data(15 downto 0)), 32)); -- zero-extend halfword
                 when others =>
                     o_data <= (others => '0');
             end case;

@@ -1,0 +1,19 @@
+0.7
+2020.2
+Oct 14 2022
+05:20:55
+C:/Users/Admin/Documents/Projects/micro-rv/vivado/rv32i_softcore/rv32i_softcore.srcs/sim_1/new/cpu_tb.vhd,1751766914,vhdl,,,,cpu_tb,,,,,,,,
+C:/Users/Admin/Documents/Projects/micro-rv/vivado/rv32i_softcore/rv32i_softcore.srcs/sources_1/imports/code/alu.vhdl,1751100756,vhdl,,,,alu,,,,,,,,
+C:/Users/Admin/Documents/Projects/micro-rv/vivado/rv32i_softcore/rv32i_softcore.srcs/sources_1/imports/code/branch_logic.vhdl,1751765959,vhdl,,,,branch_logic,,,,,,,,
+C:/Users/Admin/Documents/Projects/micro-rv/vivado/rv32i_softcore/rv32i_softcore.srcs/sources_1/imports/code/byte_extract.vhdl,1751767652,vhdl,,,,byte_extract,,,,,,,,
+C:/Users/Admin/Documents/Projects/micro-rv/vivado/rv32i_softcore/rv32i_softcore.srcs/sources_1/imports/code/cpu.vhdl,1751767321,vhdl,,,,cpu,,,,,,,,
+C:/Users/Admin/Documents/Projects/micro-rv/vivado/rv32i_softcore/rv32i_softcore.srcs/sources_1/imports/code/ctrl_unit.vhdl,1751766554,vhdl,,,,ctrl_unit,,,,,,,,
+C:/Users/Admin/Documents/Projects/micro-rv/vivado/rv32i_softcore/rv32i_softcore.srcs/sources_1/imports/code/imm_gen.vhdl,1751085872,vhdl,,,,imm_gen,,,,,,,,
+C:/Users/Admin/Documents/Projects/micro-rv/vivado/rv32i_softcore/rv32i_softcore.srcs/sources_1/imports/code/mux_2to1_1b.vhdl,1751717716,vhdl,,,,mux_2to1_1b,,,,,,,,
+C:/Users/Admin/Documents/Projects/micro-rv/vivado/rv32i_softcore/rv32i_softcore.srcs/sources_1/imports/code/mux_2to1_32b.vhdl,1751767494,vhdl,,,,mux_2to1_32b,,,,,,,,
+C:/Users/Admin/Documents/Projects/micro-rv/vivado/rv32i_softcore/rv32i_softcore.srcs/sources_1/imports/code/mux_3to1_1b.vhdl,1751713547,vhdl,,,,mux_3to1_1b,,,,,,,,
+C:/Users/Admin/Documents/Projects/micro-rv/vivado/rv32i_softcore/rv32i_softcore.srcs/sources_1/imports/code/mux_3to1_32b.vhdl,1751717757,vhdl,,,,mux_3to1_32b,,,,,,,,
+C:/Users/Admin/Documents/Projects/micro-rv/vivado/rv32i_softcore/rv32i_softcore.srcs/sources_1/imports/code/pc.vhdl,1751083415,vhdl,,,,pc,,,,,,,,
+C:/Users/Admin/Documents/Projects/micro-rv/vivado/rv32i_softcore/rv32i_softcore.srcs/sources_1/imports/code/ram.vhdl,1751766641,vhdl,,,,ram,,,,,,,,
+C:/Users/Admin/Documents/Projects/micro-rv/vivado/rv32i_softcore/rv32i_softcore.srcs/sources_1/imports/code/reg_file.vhdl,1751766685,vhdl,,,,reg_file,,,,,,,,
+C:/Users/Admin/Documents/Projects/micro-rv/vivado/rv32i_softcore/rv32i_softcore.srcs/sources_1/imports/code/rom.vhdl,1751767081,vhdl,,,,rom,,,,,,,,

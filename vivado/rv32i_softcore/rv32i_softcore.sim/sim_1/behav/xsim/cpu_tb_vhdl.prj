@@ -1,0 +1,20 @@
+# compile vhdl design source files
+vhdl xil_defaultlib  \
+"../../../../rv32i_softcore.srcs/sources_1/imports/code/alu.vhdl" \
+"../../../../rv32i_softcore.srcs/sources_1/imports/code/branch_logic.vhdl" \
+"../../../../rv32i_softcore.srcs/sources_1/imports/code/byte_extract.vhdl" \
+"../../../../rv32i_softcore.srcs/sources_1/imports/code/cpu.vhdl" \
+"../../../../rv32i_softcore.srcs/sources_1/imports/code/ctrl_unit.vhdl" \
+"../../../../rv32i_softcore.srcs/sources_1/imports/code/imm_gen.vhdl" \
+"../../../../rv32i_softcore.srcs/sources_1/imports/code/mux_2to1_1b.vhdl" \
+"../../../../rv32i_softcore.srcs/sources_1/imports/code/mux_2to1_32b.vhdl" \
+"../../../../rv32i_softcore.srcs/sources_1/imports/code/mux_3to1_1b.vhdl" \
+"../../../../rv32i_softcore.srcs/sources_1/imports/code/mux_3to1_32b.vhdl" \
+"../../../../rv32i_softcore.srcs/sources_1/imports/code/pc.vhdl" \
+"../../../../rv32i_softcore.srcs/sources_1/imports/code/ram.vhdl" \
+"../../../../rv32i_softcore.srcs/sources_1/imports/code/reg_file.vhdl" \
+"../../../../rv32i_softcore.srcs/sources_1/imports/code/rom.vhdl" \
+"../../../../rv32i_softcore.srcs/sim_1/new/cpu_tb.vhd" \
+
+# Do not sort compile order
+nosort

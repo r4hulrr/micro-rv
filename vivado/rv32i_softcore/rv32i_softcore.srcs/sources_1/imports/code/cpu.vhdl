@@ -10,7 +10,8 @@ end entity;
 
 architecture cpu_arch of cpu is
 
-    -- === Components ===
+    -- === Component Declarations ===
+
     component pc is
         port(
             i_clk, i_reset  : in std_logic;
@@ -126,7 +127,8 @@ architecture cpu_arch of cpu is
         );
     end component;
 
-    -- === Signals ===
+    -- === Signal Declarations ===
+
     signal sig_cur_pc       : std_logic_vector(7 downto 0);
     signal sig_next_pc      : std_logic_vector(7 downto 0);
     signal sig_ins          : std_logic_vector(31 downto 0);
@@ -157,12 +159,13 @@ architecture cpu_arch of cpu is
 
 begin
 
-    -- Computed signals (moved from port map expressions)
+    -- === Computed Signals ===
+
     sig_pc_ext       <= std_logic_vector(resize(unsigned(sig_cur_pc), 32));
     sig_pc_plus_4    <= std_logic_vector(resize(unsigned(sig_cur_pc) + 4, 32));
     sig_ram_addr_10b <= std_logic_vector(resize(unsigned(sig_alu_output), 10));
 
-    -- === COMPONENT INSTANTIATIONS ===
+    -- === Instantiations ===
 
     pc_inst: pc
     port map(

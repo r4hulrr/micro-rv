@@ -4,7 +4,7 @@ use ieee.numeric_std.all;
 
 entity mux_2to1_32b is
     port(
-        mux_select : in std_logic_vector(1 downto 0);
+        mux_select : in std_logic;
         data_a     : in std_logic_vector(31 downto 0);
         data_b     : in std_logic_vector(31 downto 0);
         data_y     : out std_logic_vector(31 downto 0)
@@ -14,7 +14,7 @@ end mux_2to1_32b;
 architecture mux_2to1_32b_arch of mux_2to1_32b is
     component mux_2to1_1b is
         port(
-            mux_select : in std_logic_vector(1 downto 0);
+            mux_select : in std_logic;
             data_a     : in std_logic;
             data_b     : in std_logic;
             data_y     : out std_logic

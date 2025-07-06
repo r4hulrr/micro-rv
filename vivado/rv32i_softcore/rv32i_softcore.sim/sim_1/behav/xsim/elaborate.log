@@ -1,0 +1,29 @@
+Vivado Simulator v2022.2
+Copyright 1986-1999, 2001-2022 Xilinx, Inc. All Rights Reserved.
+Running: C:/Xilinx/Vivado/2022.2/bin/unwrapped/win64.o/xelab.exe --incr --debug typical --relax --mt 2 -L xil_defaultlib -L secureip --snapshot cpu_tb_behav xil_defaultlib.cpu_tb -log elaborate.log 
+Using 2 slave threads.
+Starting static elaboration
+Completed static elaboration
+Starting simulation data flow analysis
+Completed simulation data flow analysis
+Time Resolution for simulation is 1ps
+Compiling package std.standard
+Compiling package std.textio
+Compiling package ieee.std_logic_1164
+Compiling package ieee.numeric_std
+Compiling architecture pc_arch of entity xil_defaultlib.pc [pc_default]
+Compiling architecture rom_arch of entity xil_defaultlib.rom [rom_default]
+Compiling architecture imm_gen_arch of entity xil_defaultlib.imm_gen [imm_gen_default]
+Compiling architecture ctrl_unit_arch of entity xil_defaultlib.ctrl_unit [ctrl_unit_default]
+Compiling architecture reg_file_arch of entity xil_defaultlib.reg_file [reg_file_default]
+Compiling architecture mux_3to1_1b_arch of entity xil_defaultlib.mux_3to1_1b [mux_3to1_1b_default]
+Compiling architecture mux_3to1_32b_arch of entity xil_defaultlib.mux_3to1_32b [mux_3to1_32b_default]
+Compiling architecture mux_2to1_1b_arch of entity xil_defaultlib.mux_2to1_1b [mux_2to1_1b_default]
+Compiling architecture mux_2to1_32b_arch of entity xil_defaultlib.mux_2to1_32b [mux_2to1_32b_default]
+Compiling architecture alu_arch of entity xil_defaultlib.alu [alu_default]
+Compiling architecture branch_logic_arch of entity xil_defaultlib.branch_logic [branch_logic_default]
+Compiling architecture byte_extract_arch of entity xil_defaultlib.byte_extract [byte_extract_default]
+Compiling architecture ram_arch of entity xil_defaultlib.ram [ram_default]
+Compiling architecture cpu_arch of entity xil_defaultlib.cpu [cpu_default]
+Compiling architecture sim of entity xil_defaultlib.cpu_tb
+Built simulation snapshot cpu_tb_behav

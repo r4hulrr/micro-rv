@@ -10,15 +10,15 @@
       </db_ref>
    </db_ref_list>
    <zoom_setting>
-      <ZoomStartTime time="949,995 ps"></ZoomStartTime>
-      <ZoomEndTime time="950,001 ps"></ZoomEndTime>
-      <Cursor1Time time="950,000 ps"></Cursor1Time>
+      <ZoomStartTime time="749,959 ps"></ZoomStartTime>
+      <ZoomEndTime time="750,009 ps"></ZoomEndTime>
+      <Cursor1Time time="750,000 ps"></Cursor1Time>
    </zoom_setting>
    <column_width_setting>
-      <NameColumnWidth column_width="404"></NameColumnWidth>
-      <ValueColumnWidth column_width="182"></ValueColumnWidth>
+      <NameColumnWidth column_width="468"></NameColumnWidth>
+      <ValueColumnWidth column_width="219"></ValueColumnWidth>
    </column_width_setting>
-   <WVObjectSize size="6" />
+   <WVObjectSize size="15" />
    <wvobject fp_name="/cpu_tb/i_clk" type="logic">
       <obj_property name="ElementShortName">i_clk</obj_property>
       <obj_property name="ObjectShortName">i_clk</obj_property>
@@ -36,6 +36,11 @@
       <obj_property name="ElementShortName">sig_ins[31:0]</obj_property>
       <obj_property name="ObjectShortName">sig_ins[31:0]</obj_property>
    </wvobject>
+   <wvobject fp_name="/cpu_tb/uut/sig_next_pc" type="array">
+      <obj_property name="ElementShortName">sig_next_pc[7:0]</obj_property>
+      <obj_property name="ObjectShortName">sig_next_pc[7:0]</obj_property>
+      <obj_property name="Radix">SIGNEDDECRADIX</obj_property>
+   </wvobject>
    <wvobject fp_name="/cpu_tb/uut/reg_file_inst/reg_file" type="array">
       <obj_property name="ElementShortName">reg_file[0:31][31:0]</obj_property>
       <obj_property name="ObjectShortName">reg_file[0:31][31:0]</obj_property>
@@ -51,12 +56,10 @@
       <wvobject fp_name="/cpu_tb/uut/reg_file_inst/reg_file[2]" type="array">
          <obj_property name="ElementShortName">[2][31:0]</obj_property>
          <obj_property name="ObjectShortName">[2][31:0]</obj_property>
-         <obj_property name="Radix">SIGNEDDECRADIX</obj_property>
       </wvobject>
       <wvobject fp_name="/cpu_tb/uut/reg_file_inst/reg_file[3]" type="array">
          <obj_property name="ElementShortName">[3][31:0]</obj_property>
          <obj_property name="ObjectShortName">[3][31:0]</obj_property>
-         <obj_property name="Radix">SIGNEDDECRADIX</obj_property>
       </wvobject>
       <wvobject fp_name="/cpu_tb/uut/reg_file_inst/reg_file[4]" type="array">
          <obj_property name="ElementShortName">[4][31:0]</obj_property>
@@ -65,6 +68,7 @@
       <wvobject fp_name="/cpu_tb/uut/reg_file_inst/reg_file[5]" type="array">
          <obj_property name="ElementShortName">[5][31:0]</obj_property>
          <obj_property name="ObjectShortName">[5][31:0]</obj_property>
+         <obj_property name="Radix">HEXRADIX</obj_property>
       </wvobject>
       <wvobject fp_name="/cpu_tb/uut/reg_file_inst/reg_file[6]" type="array">
          <obj_property name="ElementShortName">[6][31:0]</obj_property>
@@ -174,6 +178,39 @@
    <wvobject fp_name="/cpu_tb/uut/ram_inst/sig_ram_array" type="array">
       <obj_property name="ElementShortName">sig_ram_array[0:1023][31:0]</obj_property>
       <obj_property name="ObjectShortName">sig_ram_array[0:1023][31:0]</obj_property>
-      <obj_property name="isExpanded"></obj_property>
+   </wvobject>
+   <wvobject fp_name="/cpu_tb/uut/sig_rs1" type="array">
+      <obj_property name="ElementShortName">sig_rs1[31:0]</obj_property>
+      <obj_property name="ObjectShortName">sig_rs1[31:0]</obj_property>
+      <obj_property name="Radix">BINARYRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/cpu_tb/uut/sig_rs2" type="array">
+      <obj_property name="ElementShortName">sig_rs2[31:0]</obj_property>
+      <obj_property name="ObjectShortName">sig_rs2[31:0]</obj_property>
+      <obj_property name="Radix">BINARYRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/cpu_tb/uut/sig_imm" type="array">
+      <obj_property name="ElementShortName">sig_imm[31:0]</obj_property>
+      <obj_property name="ObjectShortName">sig_imm[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/cpu_tb/uut/reg_file_inst/i_rd_sel1" type="array">
+      <obj_property name="ElementShortName">i_rd_sel1[4:0]</obj_property>
+      <obj_property name="ObjectShortName">i_rd_sel1[4:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/cpu_tb/uut/reg_file_inst/i_rd_sel2" type="array">
+      <obj_property name="ElementShortName">i_rd_sel2[4:0]</obj_property>
+      <obj_property name="ObjectShortName">i_rd_sel2[4:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/cpu_tb/uut/byte_extract_store_inst/i_f3" type="array">
+      <obj_property name="ElementShortName">i_f3[2:0]</obj_property>
+      <obj_property name="ObjectShortName">i_f3[2:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/cpu_tb/uut/byte_extract_store_inst/i_data" type="array">
+      <obj_property name="ElementShortName">i_data[31:0]</obj_property>
+      <obj_property name="ObjectShortName">i_data[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/cpu_tb/uut/byte_extract_store_inst/o_data" type="array">
+      <obj_property name="ElementShortName">o_data[31:0]</obj_property>
+      <obj_property name="ObjectShortName">o_data[31:0]</obj_property>
    </wvobject>
 </wave_config>

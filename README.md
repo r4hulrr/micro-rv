@@ -30,6 +30,13 @@ All RV32I base instructions:
 
 Not implemented: FENCE, ECALL, EBREAK
 
+## Testing
+
+The ROM contains a hand-written test program that goes through each instruction to check:
+- ALU correctness
+- Register write-back
+- Branching and jump behavior
+
 ## Running it
 
 1. Open the Vivado project in `vivado/rv32i_softcore`

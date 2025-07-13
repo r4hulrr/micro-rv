@@ -4,7 +4,8 @@ use ieee.numeric_std.all;
 
 entity cpu is
     port(
-        i_clk, i_reset: in std_logic
+        i_clk, i_reset: in std_logic;
+        leds          : out std_logic_vector(3 downto 0)
     );
 end entity;
 
@@ -158,6 +159,8 @@ architecture cpu_arch of cpu is
     signal sig_pc_plus_4    : std_logic_vector(31 downto 0);
 
 begin
+
+    leds <= sig_wb_data(3 downto 0); -- added so design isnt optimized away
 
     -- === Computed Signals ===
 
